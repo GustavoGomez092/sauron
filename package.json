@@ -1,0 +1,32 @@
+{
+  "name": "vue-vite-plugin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "package": "vite build && node ./scripts/package.mjs",
+    "init": "node ./scripts/init.mjs"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@inquirer/prompts": "^7.2.3",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "adm-zip": "^0.5.16",
+    "autoprefixer": "^10.4.20",
+    "chalk": "^5.4.1",
+    "i": "^0.3.7",
+    "mv": "^2.1.1",
+    "npm": "^11.0.0",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-scoped-preflight": "^3.4.10",
+    "vite": "^6.0.7",
+    "zod": "^3.24.1"
+  }
+}
