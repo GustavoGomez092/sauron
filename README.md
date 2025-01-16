@@ -1,27 +1,99 @@
-# Vue 3 WordPress plugin boilerplate
+# Sauron WordPress Plugin
 
-This template should help get you started developing Wordpress plugins using Vue 3 + Tailwind.
+Sauron is a WordPress plugin designed to log user actions and generate comprehensive reports, enhancing your website's security and user activity monitoring.
 
-## Scripts
+## Features
 
-To start your project:<br/>
-```git clone https://github.com/GustavoGomez092/vue-wordpress-plugin.git```
+- **User Action Logging**: Records various user activities within your WordPress site.
+- **Comprehensive Reports**: Generates detailed reports to help you analyze user behavior.
+- **Vue 3 Integration**: Built with Vue 3 for a modern and responsive user interface.
+- **Tailwind CSS**: Styled using Tailwind CSS for a consistent and customizable design.
 
-Change directory into the project folder:<br/>
-```cd vue-wordpress-plugin```
+## Installation
 
-Install dependencies:<br/>
-```npm install```
+1. **Clone the Repository**:
 
-Before starting development:<br/>
-```npm run init```
+   ```bash
+   git clone https://github.com/GustavoGomez092/sauron.git
+   ```
 
-Development server:<br/>
-```npm run dev```
+2. **Navigate to the Plugin Directory**:
 
-Package to zip:<br/>
-```npm run package {{zipName}}```
+   ```bash
+   cd sauron
+   ```
 
-## Considerations
+3. **Install Dependencies**:
 
-To avoid style conflicts with any WordPress theme that you are using for your site, the plugin by default comes with a: "tw-" prefix on all classes (this can be disabled through the <code>tailwind.config.js</code>). We also added <code>scopedPreflightStyles</code> to limit Tailwind's CSS style resets to only happen at plugin container level.
+   Ensure you have [Node.js](https://nodejs.org/) installed, then run:
+
+   ```bash
+   npm install
+   ```
+
+4. **Initialize the Project**:
+
+   ```bash
+   npm run init
+   ```
+
+5. **Build the Plugin**:
+
+   For development:
+
+   ```bash
+   npm run dev
+   ```
+
+   For production:
+
+   ```bash
+   npm run build
+   ```
+
+6. **Package the Plugin**:
+
+   To create a zip file for installation:
+
+   ```bash
+   npm run package <zipName>
+   ```
+
+   Replace `<zipName>` with your desired file name.
+
+7. **Activate the Plugin**:
+
+   - Upload the generated zip file through the WordPress admin dashboard under Plugins > Add New > Upload Plugin.
+   - Click "Install Now" and then "Activate".
+
+## Usage
+
+Once activated, Sauron will automatically start logging user actions.
+
+Access the plugin's dashboard through the WordPress admin panel to view reports and configure settings.
+
+## Development
+
+This plugin utilizes Vue 3 and Tailwind CSS.
+
+To avoid style conflicts with your WordPress theme, all Tailwind classes are prefixed with `tw-`.
+
+You can modify this prefix in the `tailwind.config.js` file if necessary.
+
+## Contributing
+
+Contributions are welcome!
+
+Please fork the repository and create a pull request with your changes.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgements
+
+This plugin is inspired by the vigilance of Sauron, the all-seeing antagonist from J.R.R. Tolkien's Middle-earth legendarium.
+
+Just as Sauron kept a watchful eye over Middle-earth, this plugin helps you monitor user activities on your WordPress site.
+
+For more information about Sauron, you can refer to the [Wikipedia article](https://en.wikipedia.org/wiki/Sauron).
