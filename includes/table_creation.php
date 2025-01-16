@@ -20,6 +20,7 @@ class Sauron_table_creation
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         user_id BIGINT(20) UNSIGNED NOT NULL,
         user_name VARCHAR(60) NOT NULL,
+        action_type VARCHAR(60) NOT NULL,
         action_taken TEXT NOT NULL,
         action_time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
         PRIMARY KEY (id),

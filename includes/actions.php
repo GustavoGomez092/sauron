@@ -50,7 +50,8 @@ class Sauron_actions
         return $this->log_action(array(
           'user_name' => $user_login,
           'user_id' => $user->ID,
-          'action' => $this->actions_list['login']
+          'action' => 'login',
+          'action_description' => $this->actions_list['login']
         ));
       },
       10,
@@ -65,7 +66,8 @@ class Sauron_actions
       return $this->log_action(array(
         'user_name' => get_user_by('id', $user_id)->user_login,
         'user_id' => $user_id,
-        'action' => $this->actions_list['logout']
+        'action' => 'logout',
+        'action_description' => $this->actions_list['logout']
       ));
     });
 
@@ -77,7 +79,12 @@ class Sauron_actions
       $comment_author = $comment->comment_author;
       $author_email = $comment->comment_author_email;
       $message = $this->actions_list['comment_trashed'] . ' Comment author: ' . $comment_author . '. Author email: ' . $author_email . '. Comment ID: ' . $comment_id;
-      return $this->log_action($message);
+      return $this->log_action(array(
+        'user_id' => $this->get_user_id(),
+        'user_name' => $this->get_user_name(),
+        'action' => 'comment_trashed',
+        'action_description' => $message
+      ));
     });
 
     /**
@@ -88,7 +95,12 @@ class Sauron_actions
       $comment_author = $comment->comment_author;
       $author_email = $comment->comment_author_email;
       $message = $this->actions_list['comment_deleted'] . ' Comment author: ' . $comment_author . '. Author email: ' . $author_email . '. Comment ID: ' . $comment_id;
-      return $this->log_action($message);
+      return $this->log_action(array(
+        'user_id' => $this->get_user_id(),
+        'user_name' => $this->get_user_name(),
+        'action' => 'comment_deleted',
+        'action_description' => $message
+      ));
     });
 
     /**
@@ -158,23 +170,15 @@ class Sauron_actions
     if (is_array($data)) {
       $user_id = $data['user_id'];
       $user_name = $data['user_name'];
-      $action_taken = $data['action'];
-    } else if (is_string($data)) {
-      $user_id = $this->get_user_id();
-      $user_name = $this->get_user_name();
-      $action_taken = $data;
-    } else {
-      $user_id = null;
-      $user_name = null;
-      $action_taken = null;
-    }
+      $action_type = $data['action'];
+      $action_taken = $data['action_description'];
 
-    if ($user_id && $user_name && $action_taken) {
       $wpdb->insert(
         $table_name,
         array(
           'user_id' => $user_id,
           'user_name' => $user_name,
+          'action_type' => $action_type,
           'action_taken' => $action_taken
         )
       );
