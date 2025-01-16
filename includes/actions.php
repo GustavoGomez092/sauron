@@ -104,32 +104,70 @@ class Sauron_actions
     });
 
     /**
-     * Logs a user action when they update a plugin or a theme.
+     * Logs a user action when they install, update or uninstall a plugin or a theme.
      */
-    add_action('upgrader_process_complete', 'plugin_theme_upgrade', 10, 2);
+    add_action(
+      'upgrader_process_complete',
+      function ($upgrader_object, $options) {
 
-    function plugin_theme_upgrade($upgrader_object, $options)
-    {
-      $current_plugin_path_name = plugin_basename(__FILE__);
+        // error_log(print_r($options, true));
+        // error_log(print_r($upgrader_object, true));
+  
 
-      if ($options['action'] == 'update' && $options['type'] == 'plugin') {
-        foreach ($options['plugins'] as $each_plugin) {
-          if ($each_plugin == $current_plugin_path_name) {
-            // .......................... YOUR CODES .............
-
+        /**
+         * Logs a user action when they install a plugin.
+         *
+         * @param array $options The options array containing action and type.
+         * @param object $upgrader_object The upgrader object containing plugin data.
+         * @return bool True if the action was logged successfully, false otherwise.
+         */
+        if ($options['action'] == 'install' && $options['type'] == 'plugin') {
+          if (key_exists('plugins', $options)) {
+            foreach ($options['plugins'] as $each_plugin) {
+              return $this->log_action(array(
+                'user_id' => $this->get_user_id(),
+                'user_name' => $this->get_user_name(),
+                'action' => 'installed_plugin',
+                'action_description' => $this->actions_list['installed_plugin'] . $upgrader_object->new_plugin_data['Name'] . '. version: ' . $upgrader_object->new_plugin_data['Version'],
+              ));
+            }
+          } else {
+            return $this->log_action(array(
+              'user_id' => $this->get_user_id(),
+              'user_name' => $this->get_user_name(),
+              'action' => 'installed_plugin',
+              'action_description' => $this->actions_list['installed_plugin'] . $upgrader_object->new_plugin_data['Name'] . '. version: ' . $upgrader_object->new_plugin_data['Version'],
+            ));
           }
         }
-      }
-
-      if ($options['action'] == 'update' && $options['type'] == 'theme') {
-        foreach ($options['themes'] as $each_theme) {
-          if ($each_theme == $current_plugin_path_name) {
-            // .......................... YOUR CODES .............
-
+        /**
+         * Logs a user action when they update a plugin.
+         *
+         * @param array $options The options array containing action and type.
+         * @param object $upgrader_object The upgrader object containing plugin data.
+         * @return bool True if the action was logged successfully, false otherwise.
+         */
+        if ($options['action'] == 'update' && $options['type'] == 'plugin') {
+          foreach ($options['plugins'] as $each_plugin) {
+            return $this->log_action(array(
+              'user_id' => $this->get_user_id(),
+              'user_name' => $this->get_user_name(),
+              'action' => 'updated_plugin',
+              'action_description' => $this->actions_list['updated_plugin'] . $upgrader_object->new_plugin_data['Name'] . '. from version: ' . $upgrader_object->skin->plugin_info['Version'] . ' to version: ' . $upgrader_object->new_plugin_data['Version'],
+            ));
           }
         }
+
+        // if ($options['action'] == 'update' && $options['type'] == 'theme') {
+        //   foreach ($options['themes'] as $each_theme) {
+  
+        //   }
+        // }
       }
-    }
+      ,
+      10,
+      2
+    );
   }
 
   /**
