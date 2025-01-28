@@ -21,7 +21,22 @@ class Sauron
         require('plugin_options.php');
         require('includes/table_creation.php');
         require('includes/actions.php');
-        add_action('wp_enqueue_scripts', [$this, 'REST_API_DATA_LOCALIZER']);
+        add_action('admin_enqueue_scripts', [$this, 'REST_API_DATA_LOCALIZER']);
+    }
+
+    public function getLatestWordfenceScan(){
+        $nonce = wp_create_nonce();
+        $url = '/wp-admin/admin-ajax.php?action=wordfence_activityLogUpdate';
+        $request = new WP_REST_Request( 'GET', $url );
+        $response = rest_do_request( $request );
+
+        if ( $response->is_error() ){
+            wp_die();
+        }
+
+        $data = $response->get_data();
+
+        return $data;
     }
 
     /**
@@ -40,12 +55,57 @@ class Sauron
     }
 
     /**
+     * Get Page Speed Data
+     */
+    public function get_pagespeed_data( $url, $api_key ) {
+        // API endpoint
+        $endpoint = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
+    
+        // Build the query arguments
+        $args = array(
+            'url' => $url,
+            'key' => $api_key,
+            'strategy' => 'desktop',
+        );
+    
+        // Add query arguments to the endpoint
+        $api_url = add_query_arg( $args, $endpoint );
+    
+        // Make the GET request using wp_remote_get()
+        $response = wp_remote_get( $api_url, array( 'timeout' => 180 ));
+    
+        // Check for errors
+        if ( is_wp_error( $response ) ) {
+            return 'Error: ' . $response->get_error_message();
+        }
+    
+        // Parse the response
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+    
+        // Return the response data
+        return $data;
+    }    
+
+    /**
      * Initialize RADL
      */
     public function REST_API_DATA_LOCALIZER()
     {
+
+        if (!is_page('page=struck-logs') ) return;
+
+        print_r(admin_url(sprintf(basename($_SERVER['REQUEST_URI']))));
+
         // define the name of the file to be inserted
         $name = 'SauronData';
+        $googleApiKey = 'AIzaSyCMEdb-e-dCAFpdsOzbZQ7xnFd5Yf4xuXY';
+        $site_url = site_url();
+        $testUrl = 'https://www.capstantx.com/';
+        $plugin_data = $this->get_installed_plugins_data();
+        $page_speed_data = $this->get_pagespeed_data($testUrl, $googleApiKey);
+        // $wordfence_logs = $this->getLatestWordfenceScan();
+
 
         // add the data you want to pass from PHP to JS
         // Data will be inserted in the window object with the name defined above
@@ -55,12 +115,11 @@ class Sauron
 
         // Get custom data example
         $custom_data = array(
-            'plugin_data' => array(
-                'main' => array(
-                    'plugin_name' => 'Sauron',
-                    'plugin_version' => '1.0'
-                )
-            )
+            'plugin_options' => get_fields('options'),
+            'installed_plugins' => $plugin_data,
+            'site_url' => $site_url,
+            'page_speed_data' => $page_speed_data,
+            // 'wordfence_logs' => $wordfence_logs
         );
 
         $normalized_array = array_merge($plugin_options, $custom_data);
@@ -70,6 +129,54 @@ class Sauron
         wp_add_inline_script($name, 'window.' . $name . ' = ' . wp_json_encode($normalized_array), 'after');
     }
 
+    /**
+    * Get Installed plugin data
+    */
+    public function get_installed_plugins_data() {
+        // Fetch all installed plugins
+        $installed_plugins = get_plugins(); // WordPress function to get all installed plugins
+        $plugin_data_array = array();
+    
+        foreach ($installed_plugins as $plugin_file => $plugin_info) {
+            // Extract the plugin slug
+            $plugin_slug = dirname($plugin_file);
+    
+            // Fetch plugin info from WordPress Repository API
+            $api_url = "https://api.wordpress.org/plugins/info/1.0/" . $plugin_slug . ".json";
+            $response = wp_remote_get($api_url);
+    
+            if (is_wp_error($response)) {
+                continue; // Skip this plugin if API request failed
+            }
+    
+            $plugin_info_data = json_decode(wp_remote_retrieve_body($response), true);
+    
+            if (empty($plugin_info_data)) {
+                continue; // Skip if no valid data returned
+            }
+    
+            // Populate the plugin data array
+            $plugin_data_array[] = array(
+                "plugin_name" => $plugin_info_data['name'] ?? 'Unknown',
+                "WP_required_version" => $plugin_info_data['requires'] ?? 'Unknown',
+                "tested_up_to_WP_version" => $plugin_info_data['tested'] ?? 'Unknown',
+                "requires_php" => $plugin_info_data['requires_php'] ?? 'Unknown',
+                "rating" => $plugin_info_data['rating'] ?? 0,
+                "last_repo_update" => $plugin_info_data['last_updated'] ?? 'Unknown',
+            );
+
+            foreach ($plugin_data_array as $key => $plugin_data){
+                if($plugin_data["plugin_name"] === 'Unknown') {
+                    unset($plugin_data_array[$key]);
+                }
+            }
+            
+            $plugin_data_array = array_values($plugin_data_array);
+        }
+    
+        return $plugin_data_array;
+    }
+    
     /**
      * Plugin shortcode for front-end
      */

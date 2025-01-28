@@ -1,11 +1,10 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
+import LogTable from './components/LogTable.vue'
 import {onBeforeMount, ref} from 'vue'
 import axios from 'axios'
 
-
 const data = ref()
-
 
 const api = axios.create(
   {
@@ -31,7 +30,7 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="data" class="tw-container tw-mx-auto tw-my-20">
-    <HelloWorld :msg="`Hello from the admin side ${data.data.display_name}!`" />
+    <LogTable />
   </div>
   
 </template>

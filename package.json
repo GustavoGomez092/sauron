@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
+    "html2pdf.js": "^0.10.2",
     "vue": "^3.5.13"
   },
   "devDependencies": {
@@ -20,6 +21,7 @@
     "adm-zip": "^0.5.16",
     "autoprefixer": "^10.4.20",
     "chalk": "^5.4.1",
+    "daisyui": "^4.12.23",
     "i": "^0.3.7",
     "mv": "^2.1.1",
     "npm": "^11.0.0",
