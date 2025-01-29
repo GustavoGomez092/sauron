@@ -1078,7 +1078,7 @@ async function exportToPDF() {
   // Save
   const options = {
     margin: [10, 10],
-    filename: `Project Status Report ${new Date().toISOString()}.pdf`,
+    filename: `Website Status Report ${new Date().toISOString()}.pdf`,
     html2canvas: { scale: 2 },
     pageBreak: { mode: [] },
     jsPDF: {
