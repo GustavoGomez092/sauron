@@ -11,7 +11,7 @@ export default {
   },
   plugins: [
     scopedPreflightStyles({
-      isolationStrategy: isolateInsideOfContainer('.Sauron'),
+      isolationStrategy: isolateInsideOfContainer('.struck'),
     }),
   ],
 }

@@ -1,18 +1,18 @@
 <?
 
-class Sauron_table_creation
+class struck_table_creation
 {
 
   public function __construct()
   {
-    add_action('init', array($this, 'create_sauron_table'));
+    add_action('init', array($this, 'create_struck_table'));
   }
 
-  public function create_sauron_table()
+  public function create_struck_table()
   {
     global $wpdb;
 
-    $table_name = $wpdb->prefix . 'sauron_logs';
+    $table_name = $wpdb->prefix . 'struck_logs';
 
     $charset_collate = $wpdb->get_charset_collate();
 
@@ -33,4 +33,4 @@ class Sauron_table_creation
 
 }
 
-new Sauron_table_creation();
+new struck_table_creation();

@@ -6,7 +6,9 @@
       <div class="relative mx-4 mt-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-slate-800">Sauron Logs</h3>
+            <h3 class="text-lg font-semibold text-slate-800">
+              Site maintenance report
+            </h3>
             <p class="text-slate-500">Review each log or download the file</p>
           </div>
           <div class="flex items-center gap-2">
@@ -17,7 +19,7 @@
               class="px-3 !min-h-[36px] py-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             />
             <button
-              @click="exportToPDF"
+              @click="openstruckLogsModal()"
               class="px-4 py-2 border min-h-[35px] border-green-900 text-green-900 rounded hover:text-green-700 hover:border-green-700 focus:outline-none"
             >
               Export
@@ -128,28 +130,20 @@
     </div>
   </div>
 
-  <div class="export max-w-[1240px] px-16 py-16">
-
-  </div>
+  <div class="export max-w-[1240px] px-16 py-16"></div>
 
   <div
-    v-if="showSauronLogsModal"
+    v-if="showstruckLogsModal"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
   >
-    <div
-      class="bg-white rounded-lg shadow-lg w-1/3 max-w-md p-6 dark:bg-gray-700"
-    >
+    <div class="bg-white rounded-lg shadow-lg w-1/3 max-w-md p-6">
       <!-- Modal header -->
-      <div
-        class="flex items-center justify-between py-4 border-b rounded-t dark:border-gray-600"
-      >
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Configure Export
-        </h3>
+      <div class="flex items-center justify-between py-4 border-b rounded-t">
+        <h3 class="text-lg font-semibold text-gray-900">Configure Export</h3>
         <button
-          @click="closeSauronLogsModal"
+          @click="closestruckLogsModal"
           type="button"
-          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
         >
           <svg
             class="w-3 h-3"
@@ -176,40 +170,38 @@
         <div class="mb-4">
           <label
             for="startDate"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >Start Date</label
           >
           <input
             type="date"
             id="startDate"
-            v-model="sauronLogs.startDate"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            v-model="struckLogs.startDate"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           />
         </div>
         <div class="mb-4">
           <label
             for="endDate"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >End Date</label
           >
           <input
             type="date"
             id="endDate"
-            v-model="sauronLogs.endDate"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            v-model="struckLogs.endDate"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           />
         </div>
         <!-- Select User -->
         <div class="mb-4">
-          <label
-            for="user"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          <label for="user" class="block mb-2 text-sm font-medium text-gray-900"
             >Select User</label
           >
           <select
             id="user"
-            v-model="sauronLogs.user"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            v-model="struckLogs.user"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           >
             <option value="">All Users</option>
             <option
@@ -225,261 +217,306 @@
         <div class="mb-4">
           <label
             for="summary"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >Summary:</label
           >
           <textarea
             id="summary"
-            v-model="sauronLogs.summary"
+            v-model="struckLogs.summary"
             rows="4"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           ></textarea>
         </div>
 
         <div class="mb-4">
           <label
             for="recommendations"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >Recommendations:</label
           >
           <textarea
             id="recommendations"
-            v-model="sauronLogs.recommendations"
+            v-model="struckLogs.recommendations"
             rows="4"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           ></textarea>
         </div>
       </div>
 
-      <div class="mt-6 text-right">
+      <div class="mt-6 flex flex-col gap-6 justify-end">
         <button
           @click="exportToPDF"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
+          :disabled="loading"
+          class="flex w-fit self-end items-center gap-4 text-white bg-blue-700 disabled:bg-gray-400 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
         >
-          Export Logs
+          <div v-if="loading" role="status">
+            <svg
+              aria-hidden="true"
+              class="w-6 h-6 text-gray-200 animate-spin fill-gray-600"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+            <span class="sr-only">Loading...</span>
+          </div>
+          {{ loading ? 'Exporting...' : 'Export to PDF' }}
         </button>
+        <div
+          v-if="loading"
+          class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50"
+          role="alert"
+        >
+          <span class="font-medium">Rendering Report...</span> We are fetching
+          your Core Web Vitals from Google. This might take a while...
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import html2pdf from "html2pdf.js";
+import { ref, computed, watch } from 'vue'
+import html2pdf from 'html2pdf.js'
+import axios from 'axios'
 
-const showSauronLogsModal = ref(false);
-const searchQuery = ref("");
-const isSearching = ref(false);
+const showstruckLogsModal = ref(false)
+const searchQuery = ref('')
+const isSearching = ref(false)
+const loading = ref(false)
 
+const api = axios.create({
+  baseURL: `/wp-json/struck/v1/`,
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-WP-Nonce': window.wpApiSettings.nonce,
+  },
+  timeout: 100000,
+})
 
-const sauronLogs = ref({
-  startDate: "",
-  endDate: "",
-  reportType: "",
-  activity: "",
-  user: "",
-  summary: "",
-  recommendations: "",
-});
+const getPagespeedData = async () => {
+  loading.value = true
+  const response = await api.get('pagespeed')
+  window.struckData.page_speed_data = response.data
+}
+
+const struckLogs = ref({
+  startDate: '',
+  endDate: '',
+  reportType: '',
+  activity: '',
+  user: '',
+  summary: '',
+  recommendations: '',
+})
 
 const users = ref([
   {
     user_id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    role: "Admin",
-    action: "Logged In",
-    action_type: "login",
-    action_taken: "User logged in.",
-    action_time: "2025-01-16 11:28:58",
+    name: 'John Doe',
+    email: 'john@example.com',
+    role: 'Admin',
+    action: 'Logged In',
+    action_type: 'login',
+    action_taken: 'User logged in.',
+    action_time: '2025-01-16 11:28:58',
   },
   {
     user_id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "Editor",
-    action: "Logged Out",
-    action_type: "logout",
-    action_taken: "User logged out.",
-    action_time: "2025-01-16 11:29:17",
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    role: 'Editor',
+    action: 'Logged Out',
+    action_type: 'logout',
+    action_taken: 'User logged out.',
+    action_time: '2025-01-16 11:29:17',
   },
   {
     user_id: 3,
-    name: "Sam Wilson",
-    email: "sam@example.com",
-    role: "Viewer",
-    action: "Comment Deleted",
-    action_type: "comment_deleted",
+    name: 'Sam Wilson',
+    email: 'sam@example.com',
+    role: 'Viewer',
+    action: 'Comment Deleted',
+    action_type: 'comment_deleted',
     action_taken:
-      "User deleted a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 1",
-    action_time: "2025-01-16 11:29:35",
+      'User deleted a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 1',
+    action_time: '2025-01-16 11:29:35',
   },
   {
     user_id: 4,
-    name: "Bismarck Sevilla",
-    email: "bismarck@example.com",
-    role: "Editor",
-    action: "Comment Trashed",
-    action_type: "comment_trashed",
+    name: 'Bismarck Sevilla',
+    email: 'bismarck@example.com',
+    role: 'Editor',
+    action: 'Comment Trashed',
+    action_type: 'comment_trashed',
     action_taken:
-      "User trashed a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 2",
-    action_time: "2025-01-16 11:29:52",
+      'User trashed a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 2',
+    action_time: '2025-01-16 11:29:52',
   },
   {
     user_id: 5,
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    role: "Author",
-    action: "Post Published",
-    action_type: "post_publish",
+    name: 'Alice Johnson',
+    email: 'alice@example.com',
+    role: 'Author',
+    action: 'Post Published',
+    action_type: 'post_publish',
     action_taken: "User published the post: 'Top 10 Tips for Blogging'.",
-    action_time: "2025-01-16 11:30:15",
+    action_time: '2025-01-16 11:30:15',
   },
   {
     user_id: 6,
-    name: "Bob Brown",
-    email: "bob@example.com",
-    role: "Admin",
-    action: "Login Failed",
-    action_type: "login_failed",
-    action_taken: "User attempted to log in with an incorrect password.",
-    action_time: "2025-01-16 11:31:20",
+    name: 'Bob Brown',
+    email: 'bob@example.com',
+    role: 'Admin',
+    action: 'Login Failed',
+    action_type: 'login_failed',
+    action_taken: 'User attempted to log in with an incorrect password.',
+    action_time: '2025-01-16 11:31:20',
   },
   {
     user_id: 7,
-    name: "Clara Davis",
-    email: "clara@example.com",
-    role: "Contributor",
-    action: "Draft Saved",
-    action_type: "draft_save",
+    name: 'Clara Davis',
+    email: 'clara@example.com',
+    role: 'Contributor',
+    action: 'Draft Saved',
+    action_type: 'draft_save',
     action_taken: "User saved a draft for the post '2025 Trends'.",
-    action_time: "2025-01-16 11:33:45",
+    action_time: '2025-01-16 11:33:45',
   },
   {
     user_id: 9,
-    name: "Fiona Green",
-    email: "fiona@example.com",
-    role: "Author",
-    action: "Image Uploaded",
-    action_type: "media_upload",
+    name: 'Fiona Green',
+    email: 'fiona@example.com',
+    role: 'Author',
+    action: 'Image Uploaded',
+    action_type: 'media_upload',
     action_taken: "User uploaded the image 'summer.jpg'.",
-    action_time: "2025-01-16 11:40:50",
+    action_time: '2025-01-16 11:40:50',
   },
   {
     user_id: 10,
-    name: "George Hill",
-    email: "george@example.com",
-    role: "Admin",
-    action: "User Created",
-    action_type: "user_create",
+    name: 'George Hill',
+    email: 'george@example.com',
+    role: 'Admin',
+    action: 'User Created',
+    action_type: 'user_create',
     action_taken: "Admin created a new user account for 'Samantha Lee'.",
-    action_time: "2025-01-16 11:45:10",
+    action_time: '2025-01-16 11:45:10',
   },
   {
     user_id: 11,
-    name: "Henry Adams",
-    email: "henry@example.com",
-    role: "Editor",
-    action: "Category Updated",
-    action_type: "category_update",
+    name: 'Henry Adams',
+    email: 'henry@example.com',
+    role: 'Editor',
+    action: 'Category Updated',
+    action_type: 'category_update',
     action_taken: "User updated the category 'Technology'.",
-    action_time: "2025-01-16 11:47:25",
+    action_time: '2025-01-16 11:47:25',
   },
   {
     user_id: 12,
-    name: "Isla Brown",
-    email: "isla@example.com",
-    role: "Contributor",
-    action: "Post Scheduled",
-    action_type: "post_schedule",
+    name: 'Isla Brown',
+    email: 'isla@example.com',
+    role: 'Contributor',
+    action: 'Post Scheduled',
+    action_type: 'post_schedule',
     action_taken: "User scheduled the post 'Spring Collection' to publish.",
-    action_time: "2025-01-16 11:50:00",
+    action_time: '2025-01-16 11:50:00',
   },
   {
     user_id: 13,
-    name: "Jack Carter",
-    email: "jack@example.com",
-    role: "Admin",
-    action: "Theme Activated",
-    action_type: "theme_activate",
+    name: 'Jack Carter',
+    email: 'jack@example.com',
+    role: 'Admin',
+    action: 'Theme Activated',
+    action_type: 'theme_activate',
     action_taken: "User activated the theme 'OceanWP'.",
-    action_time: "2025-01-16 11:55:12",
+    action_time: '2025-01-16 11:55:12',
   },
   {
     user_id: 14,
-    name: "Kara Evans",
-    email: "kara@example.com",
-    role: "Admin",
-    action: "Plugin Installed",
-    action_type: "plugin_install",
+    name: 'Kara Evans',
+    email: 'kara@example.com',
+    role: 'Admin',
+    action: 'Plugin Installed',
+    action_type: 'plugin_install',
     action_taken: "User installed the plugin 'Yoast SEO'.",
-    action_time: "2025-01-16 12:00:50",
+    action_time: '2025-01-16 12:00:50',
   },
   {
     user_id: 15,
-    name: "Liam Moore",
-    email: "liam@example.com",
-    role: "Author",
-    action: "Comment Replied",
-    action_type: "comment_reply",
+    name: 'Liam Moore',
+    email: 'liam@example.com',
+    role: 'Author',
+    action: 'Comment Replied',
+    action_type: 'comment_reply',
     action_taken: "User replied to a comment on the post 'Summer Guide'.",
-    action_time: "2025-01-16 12:05:30",
+    action_time: '2025-01-16 12:05:30',
   },
   {
     user_id: 16,
-    name: "Mia Taylor",
-    email: "mia@example.com",
-    role: "Subscriber",
-    action: "Profile Updated",
-    action_type: "profile_update",
-    action_taken: "User updated their profile information.",
-    action_time: "2025-01-16 12:10:20",
+    name: 'Mia Taylor',
+    email: 'mia@example.com',
+    role: 'Subscriber',
+    action: 'Profile Updated',
+    action_type: 'profile_update',
+    action_taken: 'User updated their profile information.',
+    action_time: '2025-01-16 12:10:20',
   },
   {
     user_id: 17,
-    name: "Noah Jackson",
-    email: "noah@example.com",
-    role: "Admin",
-    action: "Settings Changed",
-    action_type: "settings_update",
-    action_taken: "User updated the site title and tagline.",
-    action_time: "2025-01-16 12:15:10",
+    name: 'Noah Jackson',
+    email: 'noah@example.com',
+    role: 'Admin',
+    action: 'Settings Changed',
+    action_type: 'settings_update',
+    action_taken: 'User updated the site title and tagline.',
+    action_time: '2025-01-16 12:15:10',
   },
   {
     user_id: 18,
-    name: "Olivia Harris",
-    email: "olivia@example.com",
-    role: "Editor",
-    action: "Menu Edited",
-    action_type: "menu_edit",
-    action_taken: "User edited the main navigation menu.",
-    action_time: "2025-01-16 12:20:45",
+    name: 'Olivia Harris',
+    email: 'olivia@example.com',
+    role: 'Editor',
+    action: 'Menu Edited',
+    action_type: 'menu_edit',
+    action_taken: 'User edited the main navigation menu.',
+    action_time: '2025-01-16 12:20:45',
   },
   {
     user_id: 19,
-    name: "Paul Walker",
-    email: "paul@example.com",
-    role: "Viewer",
-    action: "Password Reset",
-    action_type: "password_reset",
-    action_taken: "User reset their account password.",
-    action_time: "2025-01-16 12:25:30",
+    name: 'Paul Walker',
+    email: 'paul@example.com',
+    role: 'Viewer',
+    action: 'Password Reset',
+    action_type: 'password_reset',
+    action_taken: 'User reset their account password.',
+    action_time: '2025-01-16 12:25:30',
   },
   {
     user_id: 20,
-    name: "Quinn Brooks",
-    email: "quinn@example.com",
-    role: "Admin",
-    action: "Database Optimized",
-    action_type: "database_optimized",
-    action_taken: "User optimized the database tables.",
-    action_time: "2025-01-16 12:30:20",
+    name: 'Quinn Brooks',
+    email: 'quinn@example.com',
+    role: 'Admin',
+    action: 'Database Optimized',
+    action_type: 'database_optimized',
+    action_taken: 'User optimized the database tables.',
+    action_time: '2025-01-16 12:30:20',
   },
-]);
+])
 
 const filteredUsers = computed(() => {
   return users.value.filter((user) => {
-    const search = searchQuery.value.toLowerCase();
+    const search = searchQuery.value.toLowerCase()
     return (
       user.name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
@@ -488,68 +525,69 @@ const filteredUsers = computed(() => {
       user.action_type.toLowerCase().includes(search) ||
       user.action_taken.toLowerCase().includes(search) ||
       user.action_time.toLowerCase().includes(search)
-    );
-  });
-});
+    )
+  })
+})
 
 watch(searchQuery, (newValue) => {
   if (newValue) {
-    isSearching.value = true;
+    isSearching.value = true
     setTimeout(() => {
-      isSearching.value = false;
-    }, 500);
+      isSearching.value = false
+    }, 500)
   } else {
-    isSearching.value = false;
+    isSearching.value = false
   }
-});
+})
 
-function openSauronLogsModal() {
-  showSauronLogsModal.value = true;
+function openstruckLogsModal() {
+  showstruckLogsModal.value = true
 }
 
-function closeSauronLogsModal() {
-  showSauronLogsModal.value = false;
+function closestruckLogsModal() {
+  showstruckLogsModal.value = false
 }
 
 function wc_hex_is_light(color) {
-  const hex = color.replace("#", "");
-  const c_r = parseInt(hex.substring(0, 2), 16);
-  const c_g = parseInt(hex.substring(2, 4), 16);
-  const c_b = parseInt(hex.substring(4, 6), 16);
-  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
-  return brightness > 155;
+  const hex = color.replace('#', '')
+  const c_r = parseInt(hex.substring(0, 2), 16)
+  const c_g = parseInt(hex.substring(2, 4), 16)
+  const c_b = parseInt(hex.substring(4, 6), 16)
+  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
+  return brightness > 155
 }
 
-const backgroundColor = window.SauronData.plugin_options.color_skin;
-const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff";
+const backgroundColor = window.struckData.plugin_options.color_skin
+const textColor = wc_hex_is_light(backgroundColor) ? '#000' : '#fff'
 
 function scoreColor(score) {
   if (score >= 85 && score <= 100) {
-    return "good";
+    return 'good'
   } else if (score >= 65 && score < 85) {
-    return "medium";
+    return 'medium'
   } else if (score >= 0 && score < 65) {
-    return "bad";
-} else {
-    return "";
+    return 'bad'
+  } else {
+    return ''
   }
 }
-function exportToPDF() {
-  const pluginsData = window.SauronData.installed_plugins || [];
+async function exportToPDF() {
+  await getPagespeedData()
+  const pluginsData = window.struckData.installed_plugins || []
 
-  const wrapperElement = document.createElement("div");
-  wrapperElement.style.fontFamily = "Arial, sans-serif";
-  wrapperElement.style.fontSize = "12px";
-  wrapperElement.style.lineHeight = "1.5";
-  wrapperElement.classList.add = "main-container";
+  const wrapperElement = document.createElement('div')
+  wrapperElement.style.fontFamily = 'Arial, sans-serif'
+  wrapperElement.style.fontSize = '12px'
+  wrapperElement.style.lineHeight = '1.5'
+  wrapperElement.classList.add = 'main-container'
 
   // Header
-  const header = document.createElement("div");
-  header.style.alignItems = "center";
-  header.style.marginBottom = "20px";
-  header.style.padding = "10px 0px";
+  const header = document.createElement('div')
+  header.style.alignItems = 'center'
+  header.style.marginBottom = '20px'
+  header.style.padding = '10px 0px'
 
-  const companyInfo = document.createElement("div");
+  const companyInfo = document.createElement('div')
   companyInfo.innerHTML = `
      <div style="
       position: relative;
@@ -557,131 +595,135 @@ function exportToPDF() {
       left: 0;
       right: 0;
       font-size: 10px;
-      background-color: ${window.SauronData.plugin_options.color_skin};
+      background-color: ${window.struckData.plugin_options.color_skin};
       text-align: center;
       padding: 0px;
     ">
         <table style="width: 100%; border-collapse: collapse;" cellpadding="20">
             <tr>
                 <td>
-                    <div style="color: ${textColor}; z-index: 1; text-align: left">
-                        <div>${window.SauronData.plugin_options.address_information}</div>
+                    <div style="color: ${textColor} !important; z-index: 1; text-align: left">
+                        <div>${window.struckData.plugin_options.address_information}</div>
                     </div>
                 </td>
                 <td style:"text-align: right">
                     <div style="z-index: 1; text-align: right">
-                        <img style="width: 100px; height: auto"  src="${window.SauronData.plugin_options.company_logo.url}" />
+                        <img style="width: 180px; height: auto"  src="${window.struckData.plugin_options.company_logo.url}" />
                     </div>
                 </td>
             </tr>
         </table>
     </div>
-`;
+`
 
-  header.appendChild(companyInfo);
+  header.appendChild(companyInfo)
 
   // Title
-  const title = document.createElement("h1");
-  title.innerText = "Struck Logger Report";
-  title.style.textAlign = "left";
-  title.style.fontSize = "18px";
-  title.style.marginBottom = "20px";
+  const title = document.createElement('h1')
+  title.innerText = 'Website Maintenance and Core Vitals Report'
+  title.style.textAlign = 'left'
+  title.style.fontSize = '18px'
+  title.style.marginBottom = '20px'
   title.style.borderBottom =
-    "5px solid ${window.SauronData.plugin_options.color_skin}";
+    '5px solid ${window.struckData.plugin_options.color_skin}'
 
   // Information
-  const projectSummary = document.createElement("div");
-  projectSummary.style.marginBottom = "20px";
-  projectSummary.style.paddingTop = "20px";
+  const projectSummary = document.createElement('div')
+  projectSummary.style.marginBottom = '20px'
+  projectSummary.style.paddingTop = '20px'
   projectSummary.innerHTML = `
     <h3 style="border-bottom: 1px solid ${
-      window.SauronData.plugin_options.color_skin
+      window.struckData.plugin_options.color_skin
     }; margin-bottom: 10px; padding-bottom: 3px">Project Information</h3>
     <table style="width: 100%; border-collapse: collapse;">
       <tr>
         <td><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</td>
         <td><strong>Developer Assigned:</strong> ${
-          window.SauronData.plugin_options.assigned_developer
+          window.struckData.plugin_options.assigned_developer
         }</td>
         <td>
-            <strong>Development Director:</strong> ${window.SauronData.plugin_options.development_director}
+            <strong>Development Director:</strong> ${
+              window.struckData.plugin_options.development_director
+            }
         </td>
         <td>
-            <strong>Contact Email:</strong> <a href="mailto:${window.SauronData.plugin_options.contact_email}">${window.SauronData.plugin_options.contact_email}</a>
+            <strong>Contact Email:</strong> <a href="mailto:${
+              window.struckData.plugin_options.contact_email
+            }">${window.struckData.plugin_options.contact_email}</a>
         </td>
       </tr>
     </table>
-  `;
+  `
 
   // Summary
-  const statusSummary = document.createElement("div");
-  statusSummary.style.marginBottom = "20px";
-  statusSummary.style.paddingTop = "20px";
+  const statusSummary = document.createElement('div')
+  statusSummary.style.marginBottom = '20px'
+  statusSummary.style.paddingTop = '20px'
   statusSummary.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.SauronData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
-    <p>${sauronLogs.value.summary}</p>
-  `;
+    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
+    <p>${struckLogs.value.summary}</p>
+  `
 
   // Table start
-  const projectOverview = document.createElement("div");
-  projectOverview.style.marginBottom = "20px";
-  projectOverview.style.paddingTop = "20px";
+  const projectOverview = document.createElement('div')
+  projectOverview.style.marginBottom = '20px'
+  projectOverview.style.paddingTop = '20px'
   projectOverview.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.SauronData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
-  `;
+    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
+  `
 
-  const tableElement = document.getElementById("export-table");
+  const tableElement = document.getElementById('export-table')
   if (!filteredUsers.value.length) {
-    alert("No data available to export.");
-    return;
+    alert('No data available to export.')
+    return
   }
-  const clonedTable = tableElement.cloneNode(true);
+  const clonedTable = tableElement.cloneNode(true)
 
   clonedTable
-    .querySelectorAll("th:first-child, td:first-child")
+    .querySelectorAll('th:first-child, td:first-child')
     .forEach((cell) => {
-      cell.style.display = "none";
-    });
+      cell.style.display = 'none'
+    })
 
-  clonedTable.style.width = "100%";
-  clonedTable.style.borderCollapse = "collapse";
+  clonedTable.style.width = '100%'
+  clonedTable.style.borderCollapse = 'collapse'
 
-  clonedTable.querySelectorAll("th").forEach((header, index) => {
-    header.style.border = "1px solid #ccc";
-    header.style.padding = "8px";
-    header.style.textAlign = "left";
-    header.style.backgroundColor = backgroundColor;
-    header.style.color = textColor;
+  clonedTable.querySelectorAll('th').forEach((header, index) => {
+    header.style.border = '1px solid #ccc'
+    header.style.padding = '8px'
+    header.style.textAlign = 'left'
+    header.style.backgroundColor = backgroundColor
+    header.style.color = textColor
 
-    if (index === 0) header.style.width = "3%";
-    if (index === 1) header.style.width = "20%";
-    if (index === 2) header.style.width = "25%";
-    if (index === 3) header.style.width = "7%";
-    if (index === 4) header.style.width = "30%";
-    if (index === 5) header.style.width = "30%";
-    if (index === 6) header.style.width = "15%";
-  });
+    if (index === 0) header.style.width = '3%'
+    if (index === 1) header.style.width = '20%'
+    if (index === 2) header.style.width = '25%'
+    if (index === 3) header.style.width = '7%'
+    if (index === 4) header.style.width = '30%'
+    if (index === 5) header.style.width = '30%'
+    if (index === 6) header.style.width = '15%'
+  })
 
-  clonedTable.querySelectorAll("td").forEach((cell) => {
-    cell.style.border = "1px solid #ccc";
-    cell.style.padding = "8px";
-    cell.style.textAlign = "left";
-    cell.style.wordBreak = "break-word";
-    cell.style.fontSize = "11px";
-  });
+  clonedTable.querySelectorAll('td').forEach((cell) => {
+    cell.style.border = '1px solid #ccc'
+    cell.style.padding = '8px'
+    cell.style.textAlign = 'left'
+    cell.style.wordBreak = 'break-word'
+    cell.style.fontSize = '11px'
+  })
 
-  projectOverview.appendChild(clonedTable);
+  projectOverview.appendChild(clonedTable)
   // Table ends
 
   // Plugins Table
-  const installedPluginsHeader = document.createElement("div");
-  installedPluginsHeader.style.marginBottom = "20px";
-  installedPluginsHeader.style.paddingTop = "20px";
+  const installedPluginsHeader = document.createElement('div')
+  installedPluginsHeader.style.marginBottom = '20px'
+  installedPluginsHeader.style.paddingTop = '20px'
   installedPluginsHeader.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.SauronData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
-  `;
+    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
+  `
 
-  const pluginsTableContainer = document.createElement("div");
+  const pluginsTableContainer = document.createElement('div')
   pluginsTableContainer.innerHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
         <thead style="background-color: ${backgroundColor}; color: ${textColor}">
@@ -708,24 +750,24 @@ function exportToPDF() {
           </tr>
         `
           )
-          .join("")}
+          .join('')}
       </tbody>
     </table>
-  `;
+  `
 
-//   Page Speed Heading
-const pageSpeedDataHeading = document.createElement("div");
-  pageSpeedDataHeading.style.marginTop = "20px";
-  pageSpeedDataHeading.style.paddingTop = "20px";
+  //   Page Speed Heading
+  const pageSpeedDataHeading = document.createElement('div')
+  pageSpeedDataHeading.style.marginTop = '20px'
+  pageSpeedDataHeading.style.paddingTop = '20px'
   pageSpeedDataHeading.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.SauronData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Provided by PageSpeed Insights™)</h3>
-  `;
+    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Provided by PageSpeed Insights™)</h3>
+  `
 
-    // Page Speed Data
-    const pageSpeedData = document.createElement("div");
-    pageSpeedData.style.marginBottom = "20px";
-    pageSpeedData.style.paddingTop = "20px";
-    pageSpeedData.innerHTML = `
+  // Page Speed Data
+  const pageSpeedData = document.createElement('div')
+  pageSpeedData.style.marginBottom = '20px'
+  pageSpeedData.style.paddingTop = '20px'
+  pageSpeedData.innerHTML = `
         <style>
             @property --percentage {
             syntax: "<integer>";
@@ -847,75 +889,118 @@ const pageSpeedDataHeading = document.createElement("div");
         </style>
         <div style="display: flex; flex-direction: row; column-gap: 40px">
             <div>
-                <img src="${window.SauronData.page_speed_data.lighthouseResult.audits[`final-screenshot`].details.data}"/>
+                <img src="${
+                  window.struckData.page_speed_data.lighthouseResult.audits[
+                    `final-screenshot`
+                  ].details.data
+                }"/>
             </div>
             <div style="display: flex; flex-direction: row; flex: 1; flex-wrap: wrap; align-items: center">
-                <div class="time-breakdown-chart ${scoreColor(window.SauronData.page_speed_data.lighthouseResult.categories.performance.score * 100)}">
+                <div class="time-breakdown-chart ${scoreColor(
+                  window.struckData.page_speed_data.lighthouseResult.categories
+                    .performance.score * 100
+                )}">
                     <!-- Focus chart -->
                     <div class="percentage-chart percentage-chart-focus">
                     <svg viewBox="0 0 36 36">
                         <path class="percentage-chart-bg" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(window.SauronData.page_speed_data.lighthouseResult.categories.performance.score * 100)}, 100" d="M18 2.0845
+                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
+                          window.struckData.page_speed_data.lighthouseResult
+                            .categories.performance.score * 100
+                        )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
-                    <div class="counter" style="--counter-end:${Math.round(window.SauronData.page_speed_data.lighthouseResult.categories.performance.score * 100)};"></div>
+                    <div class="counter" style="--counter-end:${Math.round(
+                      window.struckData.page_speed_data.lighthouseResult
+                        .categories.performance.score * 100
+                    )};"></div>
                     </div>
                     <div class="chart-info">
                     <h4>Performance</h4>
                     <p>Overall Score</p>
                     </div>
                 </div>
-                <div class="time-breakdown-chart ${scoreColor(window.SauronData.page_speed_data?.lighthouseResult.audits['cumulative-layout-shift'].score * 100)}">
+                <div class="time-breakdown-chart ${scoreColor(
+                  window.struckData.page_speed_data?.lighthouseResult.audits[
+                    'cumulative-layout-shift'
+                  ].score * 100
+                )}">
                     <!-- Focus chart -->
                     <div class="percentage-chart percentage-chart-focus">
                     <svg viewBox="0 0 36 36">
                         <path class="percentage-chart-bg" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(window.SauronData?.page_speed_data.lighthouseResult.audits['cumulative-layout-shift'].score * 100)}, 100" d="M18 2.0845
+                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
+                          window.struckData?.page_speed_data.lighthouseResult
+                            .audits['cumulative-layout-shift'].score * 100
+                        )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
-                    <div class="counter" style="--counter-end:${Math.round(window.SauronData?.page_speed_data.lighthouseResult.audits['cumulative-layout-shift'].score * 100)};"></div>
+                    <div class="counter" style="--counter-end:${Math.round(
+                      window.struckData?.page_speed_data.lighthouseResult
+                        .audits['cumulative-layout-shift'].score * 100
+                    )};"></div>
                     </div>
                     <div class="chart-info">
                     <h4>CLS</h4>
                     <p>Cumulative Layout Shift</p>
                     </div>
                 </div>
-                <div class="time-breakdown-chart ${scoreColor(window.SauronData?.page_speed_data.lighthouseResult.audits['first-contentful-paint'].score * 100)}">
+                <div class="time-breakdown-chart ${scoreColor(
+                  window.struckData?.page_speed_data.lighthouseResult.audits[
+                    'first-contentful-paint'
+                  ].score * 100
+                )}">
                     <!-- Focus chart -->
                     <div class="percentage-chart percentage-chart-focus">
                     <svg viewBox="0 0 36 36">
                         <path class="percentage-chart-bg" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(window.SauronData?.page_speed_data.lighthouseResult.audits['first-contentful-paint'].score * 100)}, 100" d="M18 2.0845
+                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
+                          window.struckData?.page_speed_data.lighthouseResult
+                            .audits['first-contentful-paint'].score * 100
+                        )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
-                    <div class="counter" style="--counter-end:${Math.round(window.SauronData?.page_speed_data.lighthouseResult.audits['first-contentful-paint'].score * 100)};"></div>
+                    <div class="counter" style="--counter-end:${Math.round(
+                      window.struckData?.page_speed_data.lighthouseResult
+                        .audits['first-contentful-paint'].score * 100
+                    )};"></div>
                     </div>
                     <div class="chart-info">
                     <h4>FCP</h4>
                     <p>First Contentful Paint</p>
                     </div>
                 </div>
-                <div class="time-breakdown-chart ${scoreColor(window.SauronData?.page_speed_data.lighthouseResult.audits['first-contentful-paint'].score * 100)}">
+                <div class="time-breakdown-chart ${scoreColor(
+                  window.struckData?.page_speed_data.lighthouseResult.audits[
+                    'first-contentful-paint'
+                  ].score * 100
+                )}">
                     <!-- Focus chart -->
                     <div class="percentage-chart percentage-chart-focus">
                     <svg viewBox="0 0 36 36">
                         <path class="percentage-chart-bg" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(window.SauronData?.page_speed_data.lighthouseResult.audits['largest-contentful-paint'].score * 100)}, 100" d="M18 2.0845
+                        <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
+                          window.struckData?.page_speed_data.lighthouseResult
+                            .audits['largest-contentful-paint'].score * 100
+                        )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
-                    <div class="counter" style="--counter-end:${Math.round(window.SauronData?.page_speed_data.lighthouseResult.audits['largest-contentful-paint'].score * 100)};"></div>
+                    <div class="counter" style="--counter-end:${Math.round(
+                      window.struckData?.page_speed_data.lighthouseResult
+                        .audits['largest-contentful-paint'].score * 100
+                    )};"></div>
                     </div>
                     <div class="chart-info">
                     <h4>LCP</h4>
@@ -924,19 +1009,19 @@ const pageSpeedDataHeading = document.createElement("div");
                 </div>
             </div>
         </div>
-    `;
+    `
 
   // Recommendations
-  const recommendations = document.createElement("div");
-  recommendations.style.marginTop = "20px";
-  recommendations.style.paddingTop = "20px";
+  const recommendations = document.createElement('div')
+  recommendations.style.marginTop = '20px'
+  recommendations.style.paddingTop = '20px'
   recommendations.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.SauronData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
-    <p>${sauronLogs.value.recommendations}</p>
-  `;
+    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
+    <p>${struckLogs.value.recommendations}</p>
+  `
 
   // Footer
-  const footer = document.createElement("div");
+  const footer = document.createElement('div')
   footer.innerHTML = `
     <div style="
       position: relative;
@@ -965,47 +1050,49 @@ const pageSpeedDataHeading = document.createElement("div");
             </tr>
         </table>
     </div>
-  `;
-  footer.style.position = "relative";
-  footer.style.marginTop = "30px";
+  `
+  footer.style.position = 'relative'
+  footer.style.marginTop = '30px'
 
   // Appends
-  wrapperElement.appendChild(header);
-  wrapperElement.appendChild(title);
-  wrapperElement.appendChild(projectSummary);
-  wrapperElement.appendChild(statusSummary);
-  wrapperElement.appendChild(projectOverview);
-  wrapperElement.appendChild(installedPluginsHeader);
-  wrapperElement.appendChild(pluginsTableContainer);
-  wrapperElement.appendChild(pageSpeedDataHeading);
-  wrapperElement.appendChild(pageSpeedData);
-  wrapperElement.appendChild(recommendations);
-  wrapperElement.appendChild(footer);
+  wrapperElement.appendChild(header)
+  wrapperElement.appendChild(title)
+  wrapperElement.appendChild(projectSummary)
+  wrapperElement.appendChild(statusSummary)
+  wrapperElement.appendChild(projectOverview)
+  wrapperElement.appendChild(installedPluginsHeader)
+  wrapperElement.appendChild(pluginsTableContainer)
+  wrapperElement.appendChild(pageSpeedDataHeading)
+  wrapperElement.appendChild(pageSpeedData)
+  wrapperElement.appendChild(recommendations)
+  wrapperElement.appendChild(footer)
 
-  const exportedDocument = document.querySelector('.export');
+  const exportedDocument = document.querySelector('.export')
 
-  exportedDocument.appendChild(wrapperElement);
+  exportedDocument.appendChild(wrapperElement)
 
-  const {
-    width, height 
-  } = exportedDocument.getBoundingClientRect()
+  const { width, height } = exportedDocument.getBoundingClientRect()
 
-  console.log(width);
+  console.log(width)
 
   // Save
   const options = {
     margin: [10, 10],
     filename: `Project Status Report ${new Date().toISOString()}.pdf`,
     html2canvas: { scale: 2 },
-    pageBreak: { mode: []},
-    jsPDF: { unit: "px", format: [width, height+200],orientation: "portrait" },
-  };
-  
+    pageBreak: { mode: [] },
+    jsPDF: {
+      unit: 'px',
+      format: [width, height + 350],
+      orientation: 'portrait',
+    },
+  }
 
-//   html2pdf().set(options).from(exportedDocument).save();
+  await html2pdf().set(options).from(exportedDocument).save()
+  exportedDocument.innerHTML = ''
+  loading.value = false
+  closestruckLogsModal()
 }
-
-
 </script>
 
 <style scoped>

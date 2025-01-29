@@ -3,5 +3,5 @@ import './style.css'
 import App from './App.vue'
 import AdminApp from './AdminApp.vue'
 
-if(document.querySelector('#Sauron')) createApp(App).mount('#Sauron')
-if(document.querySelector('#Sauron-options')) createApp(AdminApp).mount('#Sauron-options')
+if(document.querySelector('#struck')) createApp(App).mount('#struck')
+if(document.querySelector('#struck-options')) createApp(AdminApp).mount('#struck-options')

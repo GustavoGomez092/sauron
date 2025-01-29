@@ -1,6 +1,6 @@
-# Sauron WordPress Plugin
+# struck WordPress Plugin
 
-Sauron is a WordPress plugin designed to log user actions and generate comprehensive reports, enhancing your website's security and user activity monitoring.
+struck is a WordPress plugin designed to log user actions and generate comprehensive reports, enhancing your website's security and user activity monitoring.
 
 ## Features
 
@@ -14,13 +14,13 @@ Sauron is a WordPress plugin designed to log user actions and generate comprehen
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/GustavoGomez092/sauron.git
+   git clone https://github.com/GustavoGomez092/struck.git
    ```
 
 2. **Navigate to the Plugin Directory**:
 
    ```bash
-   cd sauron
+   cd struck
    ```
 
 3. **Install Dependencies**:
@@ -68,7 +68,7 @@ Sauron is a WordPress plugin designed to log user actions and generate comprehen
 
 ## Usage
 
-Once activated, Sauron will automatically start logging user actions.
+Once activated, struck will automatically start logging user actions.
 
 Access the plugin's dashboard through the WordPress admin panel to view reports and configure settings.
 
@@ -92,8 +92,8 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-This plugin is inspired by the vigilance of Sauron, the all-seeing antagonist from J.R.R. Tolkien's Middle-earth legendarium.
+This plugin is inspired by the vigilance of struck, the all-seeing antagonist from J.R.R. Tolkien's Middle-earth legendarium.
 
-Just as Sauron kept a watchful eye over Middle-earth, this plugin helps you monitor user activities on your WordPress site.
+Just as struck kept a watchful eye over Middle-earth, this plugin helps you monitor user activities on your WordPress site.
 
-For more information about Sauron, you can refer to the [Wikipedia article](https://en.wikipedia.org/wiki/Sauron).
+For more information about struck, you can refer to the [Wikipedia article](https://en.wikipedia.org/wiki/struck).

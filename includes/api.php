@@ -1,6 +1,6 @@
 <?
 
-class Sauron_API
+class struck_API
 {
 
   /**
@@ -11,7 +11,7 @@ class Sauron_API
   public function get_logs()
   {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sauron_logs';
+    $table_name = $wpdb->prefix . 'struck_logs';
     $logs = $wpdb->get_results("SELECT * FROM $table_name");
     return $logs;
   }
@@ -22,7 +22,7 @@ class Sauron_API
   public function get_user_logs($user_id)
   {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sauron_logs';
+    $table_name = $wpdb->prefix . 'struck_logs';
     $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d", $user_id));
     return $logs;
   }
@@ -33,7 +33,7 @@ class Sauron_API
   public function get_user_logs_by_date($user_id, $date)
   {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sauron_logs';
+    $table_name = $wpdb->prefix . 'struck_logs';
     $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d AND DATE(action_time) = %s", $user_id, $date));
     return $logs;
   }
@@ -44,7 +44,7 @@ class Sauron_API
   public function get_user_logs_by_date_range($user_id, $start_date, $end_date)
   {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sauron_logs';
+    $table_name = $wpdb->prefix . 'struck_logs';
     $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d AND DATE(action_time) BETWEEN %s AND %s", $user_id, $start_date, $end_date));
     return $logs;
   }

@@ -1,8 +1,8 @@
 <?
 /**
- * Sauron_actions class handles logging of various user actions in WordPress.
+ * struck_actions class handles logging of various user actions in WordPress.
  */
-class Sauron_actions
+class struck_actions
 {
   /**
    * Constructor initializes the wp_actions method.
@@ -119,7 +119,6 @@ class Sauron_actions
          *
          * @param array $options The options array containing action and type.
          * @param object $upgrader_object The upgrader object containing plugin data.
-         * @return bool True if the action was logged successfully, false otherwise.
          */
         if ($options['action'] == 'install' && $options['type'] == 'plugin') {
           if (key_exists('plugins', $options)) {
@@ -145,7 +144,6 @@ class Sauron_actions
          *
          * @param array $options The options array containing action and type.
          * @param object $upgrader_object The upgrader object containing plugin data.
-         * @return bool True if the action was logged successfully, false otherwise.
          */
         if ($options['action'] == 'update' && $options['type'] == 'plugin') {
           foreach ($options['plugins'] as $each_plugin) {
@@ -203,7 +201,7 @@ class Sauron_actions
   {
 
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sauron_logs';
+    $table_name = $wpdb->prefix . 'struck_logs';
 
     if (is_array($data)) {
       $user_id = $data['user_id'];
@@ -227,6 +225,6 @@ class Sauron_actions
 }
 
 /**
- * Instantiates the Sauron_actions class to initialize logging.
+ * Instantiates the struck_actions class to initialize logging.
  */
-new Sauron_actions();
+new struck_actions();
