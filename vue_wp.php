@@ -103,14 +103,13 @@ class struck
         return $data;
     }
 
-    // Create a REST endpoint to consume get_pagespeed_data
-
 
     /**
      * Initialize RADL
      */
     public function REST_API_DATA_LOCALIZER()
     {
+        // check if we are on the correct page
         if (get_current_Screen()->id !== 'toplevel_page_struck-logs')
             return;
 
@@ -240,6 +239,7 @@ class struck
         return $user;
     }
 
+    // Create a REST endpoint to consume get_pagespeed_data
     public function api_init()
     {
         register_rest_route('struck/v1', '/pagespeed/', [

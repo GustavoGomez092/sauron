@@ -1083,7 +1083,7 @@ async function exportToPDF() {
     pageBreak: { mode: [] },
     jsPDF: {
       unit: 'px',
-      format: [width, height + 350],
+      format: [width, height + 400],
       orientation: 'portrait',
     },
   }
