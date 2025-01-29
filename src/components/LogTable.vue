@@ -268,7 +268,7 @@
             </svg>
             <span class="sr-only">Loading...</span>
           </div>
-          {{ loading ? 'Exporting...' : 'Export to PDF' }}
+          {{ loading ? "Exporting..." : "Export to PDF" }}
         </button>
         <div
           v-if="loading"
@@ -284,239 +284,239 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import html2pdf from 'html2pdf.js'
-import axios from 'axios'
+import { ref, computed, watch } from "vue";
+import html2pdf from "html2pdf.js";
+import axios from "axios";
 
-const showstruckLogsModal = ref(false)
-const searchQuery = ref('')
-const isSearching = ref(false)
-const loading = ref(false)
+const showstruckLogsModal = ref(false);
+const searchQuery = ref("");
+const isSearching = ref(false);
+const loading = ref(false);
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'X-WP-Nonce': window.wpApiSettings.nonce,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "X-WP-Nonce": window.wpApiSettings.nonce,
   },
   timeout: 100000,
-})
+});
 
 const getPagespeedData = async () => {
-  loading.value = true
-  const response = await api.get('pagespeed')
-  window.struckData.page_speed_data = response.data
-}
+  loading.value = true;
+  const response = await api.get("pagespeed");
+  window.struckData.page_speed_data = response.data;
+};
 
 const struckLogs = ref({
-  startDate: '',
-  endDate: '',
-  reportType: '',
-  activity: '',
-  user: '',
-  summary: '',
-  recommendations: '',
-})
+  startDate: "",
+  endDate: "",
+  reportType: "",
+  activity: "",
+  user: "",
+  summary: "",
+  recommendations: "",
+});
 
 const users = ref([
   {
     user_id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'Admin',
-    action: 'Logged In',
-    action_type: 'login',
-    action_taken: 'User logged in.',
-    action_time: '2025-01-16 11:28:58',
+    name: "John Doe",
+    email: "john@example.com",
+    role: "Admin",
+    action: "Logged In",
+    action_type: "login",
+    action_taken: "User logged in.",
+    action_time: "2025-01-16 11:28:58",
   },
   {
     user_id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    role: 'Editor',
-    action: 'Logged Out',
-    action_type: 'logout',
-    action_taken: 'User logged out.',
-    action_time: '2025-01-16 11:29:17',
+    name: "Jane Smith",
+    email: "jane@example.com",
+    role: "Editor",
+    action: "Logged Out",
+    action_type: "logout",
+    action_taken: "User logged out.",
+    action_time: "2025-01-16 11:29:17",
   },
   {
     user_id: 3,
-    name: 'Sam Wilson',
-    email: 'sam@example.com',
-    role: 'Viewer',
-    action: 'Comment Deleted',
-    action_type: 'comment_deleted',
+    name: "Sam Wilson",
+    email: "sam@example.com",
+    role: "Viewer",
+    action: "Comment Deleted",
+    action_type: "comment_deleted",
     action_taken:
-      'User deleted a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 1',
-    action_time: '2025-01-16 11:29:35',
+      "User deleted a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 1",
+    action_time: "2025-01-16 11:29:35",
   },
   {
     user_id: 4,
-    name: 'Bismarck Sevilla',
-    email: 'bismarck@example.com',
-    role: 'Editor',
-    action: 'Comment Trashed',
-    action_type: 'comment_trashed',
+    name: "Bismarck Sevilla",
+    email: "bismarck@example.com",
+    role: "Editor",
+    action: "Comment Trashed",
+    action_type: "comment_trashed",
     action_taken:
-      'User trashed a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 2',
-    action_time: '2025-01-16 11:29:52',
+      "User trashed a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 2",
+    action_time: "2025-01-16 11:29:52",
   },
   {
     user_id: 5,
-    name: 'Alice Johnson',
-    email: 'alice@example.com',
-    role: 'Author',
-    action: 'Post Published',
-    action_type: 'post_publish',
+    name: "Alice Johnson",
+    email: "alice@example.com",
+    role: "Author",
+    action: "Post Published",
+    action_type: "post_publish",
     action_taken: "User published the post: 'Top 10 Tips for Blogging'.",
-    action_time: '2025-01-16 11:30:15',
+    action_time: "2025-01-16 11:30:15",
   },
   {
     user_id: 6,
-    name: 'Bob Brown',
-    email: 'bob@example.com',
-    role: 'Admin',
-    action: 'Login Failed',
-    action_type: 'login_failed',
-    action_taken: 'User attempted to log in with an incorrect password.',
-    action_time: '2025-01-16 11:31:20',
+    name: "Bob Brown",
+    email: "bob@example.com",
+    role: "Admin",
+    action: "Login Failed",
+    action_type: "login_failed",
+    action_taken: "User attempted to log in with an incorrect password.",
+    action_time: "2025-01-16 11:31:20",
   },
   {
     user_id: 7,
-    name: 'Clara Davis',
-    email: 'clara@example.com',
-    role: 'Contributor',
-    action: 'Draft Saved',
-    action_type: 'draft_save',
+    name: "Clara Davis",
+    email: "clara@example.com",
+    role: "Contributor",
+    action: "Draft Saved",
+    action_type: "draft_save",
     action_taken: "User saved a draft for the post '2025 Trends'.",
-    action_time: '2025-01-16 11:33:45',
+    action_time: "2025-01-16 11:33:45",
   },
   {
     user_id: 9,
-    name: 'Fiona Green',
-    email: 'fiona@example.com',
-    role: 'Author',
-    action: 'Image Uploaded',
-    action_type: 'media_upload',
+    name: "Fiona Green",
+    email: "fiona@example.com",
+    role: "Author",
+    action: "Image Uploaded",
+    action_type: "media_upload",
     action_taken: "User uploaded the image 'summer.jpg'.",
-    action_time: '2025-01-16 11:40:50',
+    action_time: "2025-01-16 11:40:50",
   },
   {
     user_id: 10,
-    name: 'George Hill',
-    email: 'george@example.com',
-    role: 'Admin',
-    action: 'User Created',
-    action_type: 'user_create',
+    name: "George Hill",
+    email: "george@example.com",
+    role: "Admin",
+    action: "User Created",
+    action_type: "user_create",
     action_taken: "Admin created a new user account for 'Samantha Lee'.",
-    action_time: '2025-01-16 11:45:10',
+    action_time: "2025-01-16 11:45:10",
   },
   {
     user_id: 11,
-    name: 'Henry Adams',
-    email: 'henry@example.com',
-    role: 'Editor',
-    action: 'Category Updated',
-    action_type: 'category_update',
+    name: "Henry Adams",
+    email: "henry@example.com",
+    role: "Editor",
+    action: "Category Updated",
+    action_type: "category_update",
     action_taken: "User updated the category 'Technology'.",
-    action_time: '2025-01-16 11:47:25',
+    action_time: "2025-01-16 11:47:25",
   },
   {
     user_id: 12,
-    name: 'Isla Brown',
-    email: 'isla@example.com',
-    role: 'Contributor',
-    action: 'Post Scheduled',
-    action_type: 'post_schedule',
+    name: "Isla Brown",
+    email: "isla@example.com",
+    role: "Contributor",
+    action: "Post Scheduled",
+    action_type: "post_schedule",
     action_taken: "User scheduled the post 'Spring Collection' to publish.",
-    action_time: '2025-01-16 11:50:00',
+    action_time: "2025-01-16 11:50:00",
   },
   {
     user_id: 13,
-    name: 'Jack Carter',
-    email: 'jack@example.com',
-    role: 'Admin',
-    action: 'Theme Activated',
-    action_type: 'theme_activate',
+    name: "Jack Carter",
+    email: "jack@example.com",
+    role: "Admin",
+    action: "Theme Activated",
+    action_type: "theme_activate",
     action_taken: "User activated the theme 'OceanWP'.",
-    action_time: '2025-01-16 11:55:12',
+    action_time: "2025-01-16 11:55:12",
   },
   {
     user_id: 14,
-    name: 'Kara Evans',
-    email: 'kara@example.com',
-    role: 'Admin',
-    action: 'Plugin Installed',
-    action_type: 'plugin_install',
+    name: "Kara Evans",
+    email: "kara@example.com",
+    role: "Admin",
+    action: "Plugin Installed",
+    action_type: "plugin_install",
     action_taken: "User installed the plugin 'Yoast SEO'.",
-    action_time: '2025-01-16 12:00:50',
+    action_time: "2025-01-16 12:00:50",
   },
   {
     user_id: 15,
-    name: 'Liam Moore',
-    email: 'liam@example.com',
-    role: 'Author',
-    action: 'Comment Replied',
-    action_type: 'comment_reply',
+    name: "Liam Moore",
+    email: "liam@example.com",
+    role: "Author",
+    action: "Comment Replied",
+    action_type: "comment_reply",
     action_taken: "User replied to a comment on the post 'Summer Guide'.",
-    action_time: '2025-01-16 12:05:30',
+    action_time: "2025-01-16 12:05:30",
   },
   {
     user_id: 16,
-    name: 'Mia Taylor',
-    email: 'mia@example.com',
-    role: 'Subscriber',
-    action: 'Profile Updated',
-    action_type: 'profile_update',
-    action_taken: 'User updated their profile information.',
-    action_time: '2025-01-16 12:10:20',
+    name: "Mia Taylor",
+    email: "mia@example.com",
+    role: "Subscriber",
+    action: "Profile Updated",
+    action_type: "profile_update",
+    action_taken: "User updated their profile information.",
+    action_time: "2025-01-16 12:10:20",
   },
   {
     user_id: 17,
-    name: 'Noah Jackson',
-    email: 'noah@example.com',
-    role: 'Admin',
-    action: 'Settings Changed',
-    action_type: 'settings_update',
-    action_taken: 'User updated the site title and tagline.',
-    action_time: '2025-01-16 12:15:10',
+    name: "Noah Jackson",
+    email: "noah@example.com",
+    role: "Admin",
+    action: "Settings Changed",
+    action_type: "settings_update",
+    action_taken: "User updated the site title and tagline.",
+    action_time: "2025-01-16 12:15:10",
   },
   {
     user_id: 18,
-    name: 'Olivia Harris',
-    email: 'olivia@example.com',
-    role: 'Editor',
-    action: 'Menu Edited',
-    action_type: 'menu_edit',
-    action_taken: 'User edited the main navigation menu.',
-    action_time: '2025-01-16 12:20:45',
+    name: "Olivia Harris",
+    email: "olivia@example.com",
+    role: "Editor",
+    action: "Menu Edited",
+    action_type: "menu_edit",
+    action_taken: "User edited the main navigation menu.",
+    action_time: "2025-01-16 12:20:45",
   },
   {
     user_id: 19,
-    name: 'Paul Walker',
-    email: 'paul@example.com',
-    role: 'Viewer',
-    action: 'Password Reset',
-    action_type: 'password_reset',
-    action_taken: 'User reset their account password.',
-    action_time: '2025-01-16 12:25:30',
+    name: "Paul Walker",
+    email: "paul@example.com",
+    role: "Viewer",
+    action: "Password Reset",
+    action_type: "password_reset",
+    action_taken: "User reset their account password.",
+    action_time: "2025-01-16 12:25:30",
   },
   {
     user_id: 20,
-    name: 'Quinn Brooks',
-    email: 'quinn@example.com',
-    role: 'Admin',
-    action: 'Database Optimized',
-    action_type: 'database_optimized',
-    action_taken: 'User optimized the database tables.',
-    action_time: '2025-01-16 12:30:20',
+    name: "Quinn Brooks",
+    email: "quinn@example.com",
+    role: "Admin",
+    action: "Database Optimized",
+    action_type: "database_optimized",
+    action_taken: "User optimized the database tables.",
+    action_time: "2025-01-16 12:30:20",
   },
-])
+]);
 
 const filteredUsers = computed(() => {
   return users.value.filter((user) => {
-    const search = searchQuery.value.toLowerCase()
+    const search = searchQuery.value.toLowerCase();
     return (
       user.name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
@@ -525,69 +525,69 @@ const filteredUsers = computed(() => {
       user.action_type.toLowerCase().includes(search) ||
       user.action_taken.toLowerCase().includes(search) ||
       user.action_time.toLowerCase().includes(search)
-    )
-  })
-})
+    );
+  });
+});
 
 watch(searchQuery, (newValue) => {
   if (newValue) {
-    isSearching.value = true
+    isSearching.value = true;
     setTimeout(() => {
-      isSearching.value = false
-    }, 500)
+      isSearching.value = false;
+    }, 500);
   } else {
-    isSearching.value = false
+    isSearching.value = false;
   }
-})
+});
 
 function openstruckLogsModal() {
-  showstruckLogsModal.value = true
+  showstruckLogsModal.value = true;
 }
 
 function closestruckLogsModal() {
-  showstruckLogsModal.value = false
+  showstruckLogsModal.value = false;
 }
 
 function wc_hex_is_light(color) {
-  const hex = color.replace('#', '')
-  const c_r = parseInt(hex.substring(0, 2), 16)
-  const c_g = parseInt(hex.substring(2, 4), 16)
-  const c_b = parseInt(hex.substring(4, 6), 16)
-  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
-  return brightness > 155
+  const hex = color.replace("#", "");
+  const c_r = parseInt(hex.substring(0, 2), 16);
+  const c_g = parseInt(hex.substring(2, 4), 16);
+  const c_b = parseInt(hex.substring(4, 6), 16);
+  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
+  return brightness > 155;
 }
 
-const backgroundColor = window.struckData.plugin_options.color_skin
-const textColor = wc_hex_is_light(backgroundColor) ? '#000' : '#fff'
+const backgroundColor = window.struckData.plugin_options.color_skin;
+const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff";
 
 function scoreColor(score) {
   if (score >= 85 && score <= 100) {
-    return 'good'
+    return "good";
   } else if (score >= 65 && score < 85) {
-    return 'medium'
+    return "medium";
   } else if (score >= 0 && score < 65) {
-    return 'bad'
+    return "bad";
   } else {
-    return ''
+    return "";
   }
 }
 async function exportToPDF() {
-  await getPagespeedData()
-  const pluginsData = window.struckData.installed_plugins || []
+  await getPagespeedData();
+  const pluginsData = window.struckData.installed_plugins || [];
 
-  const wrapperElement = document.createElement('div')
-  wrapperElement.style.fontFamily = 'Arial, sans-serif'
-  wrapperElement.style.fontSize = '12px'
-  wrapperElement.style.lineHeight = '1.5'
-  wrapperElement.classList.add = 'main-container'
+  const wrapperElement = document.createElement("div");
+  wrapperElement.style.fontFamily = "Arial, sans-serif";
+  wrapperElement.style.fontSize = "12px";
+  wrapperElement.style.lineHeight = "1.5";
+  wrapperElement.classList.add = "main-container";
 
   // Header
-  const header = document.createElement('div')
-  header.style.alignItems = 'center'
-  header.style.marginBottom = '20px'
-  header.style.padding = '10px 0px'
+  const header = document.createElement("div");
+  header.style.alignItems = "center";
+  header.style.marginBottom = "20px";
+  header.style.padding = "10px 0px";
 
-  const companyInfo = document.createElement('div')
+  const companyInfo = document.createElement("div");
   companyInfo.innerHTML = `
      <div style="
       position: relative;
@@ -614,23 +614,23 @@ async function exportToPDF() {
             </tr>
         </table>
     </div>
-`
+`;
 
-  header.appendChild(companyInfo)
+  header.appendChild(companyInfo);
 
   // Title
-  const title = document.createElement('h1')
-  title.innerText = 'Website Maintenance and Core Vitals Report'
-  title.style.textAlign = 'left'
-  title.style.fontSize = '18px'
-  title.style.marginBottom = '20px'
+  const title = document.createElement("h1");
+  title.innerText = "Website Maintenance and Core Vitals Report";
+  title.style.textAlign = "left";
+  title.style.fontSize = "18px";
+  title.style.marginBottom = "20px";
   title.style.borderBottom =
-    '5px solid ${window.struckData.plugin_options.color_skin}'
+    "5px solid ${window.struckData.plugin_options.color_skin}";
 
   // Information
-  const projectSummary = document.createElement('div')
-  projectSummary.style.marginBottom = '20px'
-  projectSummary.style.paddingTop = '20px'
+  const projectSummary = document.createElement("div");
+  projectSummary.style.marginBottom = "20px";
+  projectSummary.style.paddingTop = "20px";
   projectSummary.innerHTML = `
     <h3 style="border-bottom: 1px solid ${
       window.struckData.plugin_options.color_skin
@@ -653,77 +653,77 @@ async function exportToPDF() {
         </td>
       </tr>
     </table>
-  `
+  `;
 
   // Summary
-  const statusSummary = document.createElement('div')
-  statusSummary.style.marginBottom = '20px'
-  statusSummary.style.paddingTop = '20px'
+  const statusSummary = document.createElement("div");
+  statusSummary.style.marginBottom = "20px";
+  statusSummary.style.paddingTop = "20px";
   statusSummary.innerHTML = `
     <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
     <p>${struckLogs.value.summary}</p>
-  `
+  `;
 
   // Table start
-  const projectOverview = document.createElement('div')
-  projectOverview.style.marginBottom = '20px'
-  projectOverview.style.paddingTop = '20px'
+  const projectOverview = document.createElement("div");
+  projectOverview.style.marginBottom = "20px";
+  projectOverview.style.paddingTop = "20px";
   projectOverview.innerHTML = `
     <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
-  `
+  `;
 
-  const tableElement = document.getElementById('export-table')
+  const tableElement = document.getElementById("export-table");
   if (!filteredUsers.value.length) {
-    alert('No data available to export.')
-    return
+    alert("No data available to export.");
+    return;
   }
-  const clonedTable = tableElement.cloneNode(true)
+  const clonedTable = tableElement.cloneNode(true);
 
   clonedTable
-    .querySelectorAll('th:first-child, td:first-child')
+    .querySelectorAll("th:first-child, td:first-child")
     .forEach((cell) => {
-      cell.style.display = 'none'
-    })
+      cell.style.display = "none";
+    });
 
-  clonedTable.style.width = '100%'
-  clonedTable.style.borderCollapse = 'collapse'
+  clonedTable.style.width = "100%";
+  clonedTable.style.borderCollapse = "collapse";
 
-  clonedTable.querySelectorAll('th').forEach((header, index) => {
-    header.style.border = '1px solid #ccc'
-    header.style.padding = '8px'
-    header.style.textAlign = 'left'
-    header.style.backgroundColor = backgroundColor
-    header.style.color = textColor
+  clonedTable.querySelectorAll("th").forEach((header, index) => {
+    header.style.border = "1px solid #ccc";
+    header.style.padding = "8px";
+    header.style.textAlign = "left";
+    header.style.backgroundColor = backgroundColor;
+    header.style.color = textColor;
 
-    if (index === 0) header.style.width = '3%'
-    if (index === 1) header.style.width = '20%'
-    if (index === 2) header.style.width = '25%'
-    if (index === 3) header.style.width = '7%'
-    if (index === 4) header.style.width = '30%'
-    if (index === 5) header.style.width = '30%'
-    if (index === 6) header.style.width = '15%'
-  })
+    if (index === 0) header.style.width = "3%";
+    if (index === 1) header.style.width = "20%";
+    if (index === 2) header.style.width = "25%";
+    if (index === 3) header.style.width = "10%";
+    if (index === 4) header.style.width = "27%";
+    if (index === 5) header.style.width = "30%";
+    if (index === 6) header.style.width = "15%";
+  });
 
-  clonedTable.querySelectorAll('td').forEach((cell) => {
-    cell.style.border = '1px solid #ccc'
-    cell.style.padding = '8px'
-    cell.style.textAlign = 'left'
-    cell.style.wordBreak = 'break-word'
-    cell.style.fontSize = '11px'
-  })
+  clonedTable.querySelectorAll("td").forEach((cell) => {
+    cell.style.border = "1px solid #ccc";
+    cell.style.padding = "8px";
+    cell.style.textAlign = "left";
+    cell.style.wordBreak = "break-word";
+    cell.style.fontSize = "11px";
+  });
 
-  projectOverview.appendChild(clonedTable)
+  projectOverview.appendChild(clonedTable);
   // Table ends
 
   // Plugins Table
-  const installedPluginsHeader = document.createElement('div')
-  installedPluginsHeader.style.marginBottom = '20px'
-  installedPluginsHeader.style.paddingTop = '20px'
+  const installedPluginsHeader = document.createElement("div");
+  installedPluginsHeader.style.marginBottom = "20px";
+  installedPluginsHeader.style.paddingTop = "20px";
   installedPluginsHeader.innerHTML = `
     <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
-  `
+  `;
 
-  const pluginsTableContainer = document.createElement('div')
+  const pluginsTableContainer = document.createElement("div");
   pluginsTableContainer.innerHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
         <thead style="background-color: ${backgroundColor}; color: ${textColor}">
@@ -750,23 +750,80 @@ async function exportToPDF() {
           </tr>
         `
           )
-          .join('')}
+          .join("")}
       </tbody>
     </table>
-  `
+  `;
+
+  // Wordfence
+  const wordfenceData = window.struckData.wordfence_logs;
+
+  // if (wordfenceData) {
+  const wordfence = document.createElement("div");
+  wordfence.style.marginTop = "20px";
+  wordfence.style.paddingTop = "20px";
+  wordfence.innerHTML = `
+    <h3 style="border-bottom: 1px solid ${backgroundColor}; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
+    <p><b>*${wordfenceData?.lastMessage}</b></p>
+  `;
+
+  const wordfenceTableContainer = document.createElement("div");
+  wordfenceTableContainer.innerHTML = `
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
+        <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+            <tr>
+                <th style="border: 1px solid #ccc; padding: 8px;">Plugin Name</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Version</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Available Update</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">New Version</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Date</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Message</th>
+            </tr>
+        </thead>
+    <tbody>
+        ${wordfenceData?.issues?.new
+          .map(
+            (plugin) => `
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+              plugin?.data?.Title
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+              plugin?.data?.Version
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+              plugin?.data?.updateAvailable ? "Yes" : "No"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+              plugin?.data?.newVersion ? plugin?.data?.newVersion : "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+              plugin?.displayTime ? plugin?.displayTime : "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+              plugin?.shortMsg ? plugin?.shortMsg : "-"
+            }</td>
+          </tr>
+        `
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+  // }
 
   //   Page Speed Heading
-  const pageSpeedDataHeading = document.createElement('div')
-  pageSpeedDataHeading.style.marginTop = '20px'
-  pageSpeedDataHeading.style.paddingTop = '20px'
+  const pageSpeedDataHeading = document.createElement("div");
+  pageSpeedDataHeading.style.marginTop = "20px";
+  pageSpeedDataHeading.style.paddingTop = "20px";
   pageSpeedDataHeading.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Provided by PageSpeed Insights™)</h3>
-  `
+    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
+  `;
 
   // Page Speed Data
-  const pageSpeedData = document.createElement('div')
-  pageSpeedData.style.marginBottom = '20px'
-  pageSpeedData.style.paddingTop = '20px'
+  const pageSpeedData = document.createElement("div");
+  pageSpeedData.style.marginBottom = "20px";
+  pageSpeedData.style.paddingTop = "20px";
   pageSpeedData.innerHTML = `
         <style>
             @property --percentage {
@@ -860,7 +917,7 @@ async function exportToPDF() {
             .time-breakdown-chart h4 {
             margin: 0;
             color: #1B1C20;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: normal;
             }
 
@@ -925,7 +982,7 @@ async function exportToPDF() {
                 </div>
                 <div class="time-breakdown-chart ${scoreColor(
                   window.struckData.page_speed_data?.lighthouseResult.audits[
-                    'cumulative-layout-shift'
+                    "cumulative-layout-shift"
                   ].score * 100
                 )}">
                     <!-- Focus chart -->
@@ -936,14 +993,14 @@ async function exportToPDF() {
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
                           window.struckData?.page_speed_data.lighthouseResult
-                            .audits['cumulative-layout-shift'].score * 100
+                            .audits["cumulative-layout-shift"].score * 100
                         )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                     <div class="counter" style="--counter-end:${Math.round(
                       window.struckData?.page_speed_data.lighthouseResult
-                        .audits['cumulative-layout-shift'].score * 100
+                        .audits["cumulative-layout-shift"].score * 100
                     )};"></div>
                     </div>
                     <div class="chart-info">
@@ -953,7 +1010,7 @@ async function exportToPDF() {
                 </div>
                 <div class="time-breakdown-chart ${scoreColor(
                   window.struckData?.page_speed_data.lighthouseResult.audits[
-                    'first-contentful-paint'
+                    "first-contentful-paint"
                   ].score * 100
                 )}">
                     <!-- Focus chart -->
@@ -964,14 +1021,14 @@ async function exportToPDF() {
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
                           window.struckData?.page_speed_data.lighthouseResult
-                            .audits['first-contentful-paint'].score * 100
+                            .audits["first-contentful-paint"].score * 100
                         )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                     <div class="counter" style="--counter-end:${Math.round(
                       window.struckData?.page_speed_data.lighthouseResult
-                        .audits['first-contentful-paint'].score * 100
+                        .audits["first-contentful-paint"].score * 100
                     )};"></div>
                     </div>
                     <div class="chart-info">
@@ -981,7 +1038,7 @@ async function exportToPDF() {
                 </div>
                 <div class="time-breakdown-chart ${scoreColor(
                   window.struckData?.page_speed_data.lighthouseResult.audits[
-                    'first-contentful-paint'
+                    "first-contentful-paint"
                   ].score * 100
                 )}">
                     <!-- Focus chart -->
@@ -992,14 +1049,14 @@ async function exportToPDF() {
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <path class="percentage-chart-stroke" stroke-dasharray="${Math.round(
                           window.struckData?.page_speed_data.lighthouseResult
-                            .audits['largest-contentful-paint'].score * 100
+                            .audits["largest-contentful-paint"].score * 100
                         )}, 100" d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                     <div class="counter" style="--counter-end:${Math.round(
                       window.struckData?.page_speed_data.lighthouseResult
-                        .audits['largest-contentful-paint'].score * 100
+                        .audits["largest-contentful-paint"].score * 100
                     )};"></div>
                     </div>
                     <div class="chart-info">
@@ -1009,19 +1066,19 @@ async function exportToPDF() {
                 </div>
             </div>
         </div>
-    `
+    `;
 
   // Recommendations
-  const recommendations = document.createElement('div')
-  recommendations.style.marginTop = '20px'
-  recommendations.style.paddingTop = '20px'
+  const recommendations = document.createElement("div");
+  recommendations.style.marginTop = "20px";
+  recommendations.style.paddingTop = "20px";
   recommendations.innerHTML = `
     <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
     <p>${struckLogs.value.recommendations}</p>
-  `
+  `;
 
   // Footer
-  const footer = document.createElement('div')
+  const footer = document.createElement("div");
   footer.innerHTML = `
     <div style="
       position: relative;
@@ -1050,30 +1107,32 @@ async function exportToPDF() {
             </tr>
         </table>
     </div>
-  `
-  footer.style.position = 'relative'
-  footer.style.marginTop = '30px'
+  `;
+  footer.style.position = "relative";
+  footer.style.marginTop = "30px";
 
   // Appends
-  wrapperElement.appendChild(header)
-  wrapperElement.appendChild(title)
-  wrapperElement.appendChild(projectSummary)
-  wrapperElement.appendChild(statusSummary)
-  wrapperElement.appendChild(projectOverview)
-  wrapperElement.appendChild(installedPluginsHeader)
-  wrapperElement.appendChild(pluginsTableContainer)
-  wrapperElement.appendChild(pageSpeedDataHeading)
-  wrapperElement.appendChild(pageSpeedData)
-  wrapperElement.appendChild(recommendations)
-  wrapperElement.appendChild(footer)
+  wrapperElement.appendChild(header);
+  wrapperElement.appendChild(title);
+  wrapperElement.appendChild(projectSummary);
+  wrapperElement.appendChild(statusSummary);
+  wrapperElement.appendChild(projectOverview);
+  wrapperElement.appendChild(installedPluginsHeader);
+  wrapperElement.appendChild(pluginsTableContainer);
+  wrapperElement.appendChild(wordfence);
+  wrapperElement.appendChild(wordfenceTableContainer);
+  wrapperElement.appendChild(pageSpeedDataHeading);
+  wrapperElement.appendChild(pageSpeedData);
+  wrapperElement.appendChild(recommendations);
+  wrapperElement.appendChild(footer);
 
-  const exportedDocument = document.querySelector('.export')
+  const exportedDocument = document.querySelector(".export");
 
-  exportedDocument.appendChild(wrapperElement)
+  exportedDocument.appendChild(wrapperElement);
 
-  const { width, height } = exportedDocument.getBoundingClientRect()
+  const { width, height } = exportedDocument.getBoundingClientRect();
 
-  console.log(width)
+  console.log(width);
 
   // Save
   const options = {
@@ -1082,16 +1141,16 @@ async function exportToPDF() {
     html2canvas: { scale: 2 },
     pageBreak: { mode: [] },
     jsPDF: {
-      unit: 'px',
+      unit: "px",
       format: [width, height + 400],
-      orientation: 'portrait',
+      orientation: "portrait",
     },
-  }
+  };
 
-  await html2pdf().set(options).from(exportedDocument).save()
-  exportedDocument.innerHTML = ''
-  loading.value = false
-  closestruckLogsModal()
+  await html2pdf().set(options).from(exportedDocument).save();
+  exportedDocument.innerHTML = "";
+  loading.value = false;
+  closestruckLogsModal();
 }
 </script>
 
