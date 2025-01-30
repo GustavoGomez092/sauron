@@ -292,6 +292,7 @@ const showstruckLogsModal = ref(false);
 const searchQuery = ref("");
 const isSearching = ref(false);
 const loading = ref(false);
+const settingsData = window.struckData.plugin_options;
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -557,7 +558,7 @@ function wc_hex_is_light(color) {
   return brightness > 155;
 }
 
-const backgroundColor = window.struckData.plugin_options.color_skin;
+const backgroundColor = settingsData.color_skin;
 const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff";
 
 function scoreColor(score) {
@@ -595,7 +596,7 @@ async function exportToPDF() {
       left: 0;
       right: 0;
       font-size: 10px;
-      background-color: ${window.struckData.plugin_options.color_skin};
+      background-color: ${settingsData.color_skin};
       text-align: center;
       padding: 0px;
     ">
@@ -603,12 +604,12 @@ async function exportToPDF() {
             <tr>
                 <td>
                     <div style="color: ${textColor} !important; z-index: 1; text-align: left">
-                        <div>${window.struckData.plugin_options.address_information}</div>
+                        <div>${settingsData.address_information}</div>
                     </div>
                 </td>
                 <td style:"text-align: right">
                     <div style="z-index: 1; text-align: right">
-                        <img style="width: 180px; height: auto"  src="${window.struckData.plugin_options.company_logo.url}" />
+                        <img style="width: 180px; height: auto"  src="${settingsData.company_logo.url}" />
                     </div>
                 </td>
             </tr>
@@ -624,8 +625,7 @@ async function exportToPDF() {
   title.style.textAlign = "left";
   title.style.fontSize = "18px";
   title.style.marginBottom = "20px";
-  title.style.borderBottom =
-    "5px solid ${window.struckData.plugin_options.color_skin}";
+  title.style.borderBottom = "5px solid ${settingsData.color_skin}";
 
   // Information
   const projectSummary = document.createElement("div");
@@ -633,23 +633,23 @@ async function exportToPDF() {
   projectSummary.style.paddingTop = "20px";
   projectSummary.innerHTML = `
     <h3 style="border-bottom: 1px solid ${
-      window.struckData.plugin_options.color_skin
+      settingsData.color_skin
     }; margin-bottom: 10px; padding-bottom: 3px">Project Information</h3>
     <table style="width: 100%; border-collapse: collapse;">
       <tr>
         <td><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</td>
         <td><strong>Developer Assigned:</strong> ${
-          window.struckData.plugin_options.assigned_developer
+          settingsData.assigned_developer
         }</td>
         <td>
             <strong>Development Director:</strong> ${
-              window.struckData.plugin_options.development_director
+              settingsData.development_director
             }
         </td>
         <td>
             <strong>Contact Email:</strong> <a href="mailto:${
-              window.struckData.plugin_options.contact_email
-            }">${window.struckData.plugin_options.contact_email}</a>
+              settingsData.contact_email
+            }">${settingsData.contact_email}</a>
         </td>
       </tr>
     </table>
@@ -660,7 +660,7 @@ async function exportToPDF() {
   statusSummary.style.marginBottom = "20px";
   statusSummary.style.paddingTop = "20px";
   statusSummary.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
     <p>${struckLogs.value.summary}</p>
   `;
 
@@ -669,7 +669,7 @@ async function exportToPDF() {
   projectOverview.style.marginBottom = "20px";
   projectOverview.style.paddingTop = "20px";
   projectOverview.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
   `;
 
   const tableElement = document.getElementById("export-table");
@@ -720,7 +720,7 @@ async function exportToPDF() {
   installedPluginsHeader.style.marginBottom = "20px";
   installedPluginsHeader.style.paddingTop = "20px";
   installedPluginsHeader.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
   `;
 
   const pluginsTableContainer = document.createElement("div");
@@ -817,7 +817,7 @@ async function exportToPDF() {
   pageSpeedDataHeading.style.marginTop = "20px";
   pageSpeedDataHeading.style.paddingTop = "20px";
   pageSpeedDataHeading.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
   `;
 
   // Page Speed Data
@@ -1073,14 +1073,15 @@ async function exportToPDF() {
   recommendations.style.marginTop = "20px";
   recommendations.style.paddingTop = "20px";
   recommendations.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${window.struckData.plugin_options.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
     <p>${struckLogs.value.recommendations}</p>
   `;
 
   // Footer
   const footer = document.createElement("div");
   footer.innerHTML = `
-    <div style="
+    <div 
+    style="
       position: relative;
       bottom: 0;
       left: 0;
@@ -1132,17 +1133,18 @@ async function exportToPDF() {
 
   const { width, height } = exportedDocument.getBoundingClientRect();
 
-  console.log(width);
-
   // Save
   const options = {
     margin: [10, 10],
     filename: `Website Status Report ${new Date().toISOString()}.pdf`,
     html2canvas: { scale: 2 },
-    pageBreak: { mode: [] },
+    pageBreak: {
+      mode: ["avoid-all"],
+      autoPaging: false,
+    },
     jsPDF: {
       unit: "px",
-      format: [width, height + 400],
+      format: [width, height + 500],
       orientation: "portrait",
     },
   };
