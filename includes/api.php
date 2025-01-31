@@ -16,12 +16,23 @@ class Struck_API
     $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id LIMIT $limit OFFSET $offset");
 
     foreach ($logs as &$value) {
+
       $user = get_userdata($value->user_id);
       $user_email = $user->data->user_email;
-
+      $role = $user->data->user_nicename;
       $value->email = $user_email;
+      $value->role = $role;
     }
     return $logs;
+  }
+
+  public function get_total_entries()
+  {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'struck_logs';
+    $total_entries = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+
+    return $total_entries;
   }
 
 

@@ -69,7 +69,6 @@ class Struck_endpoints
                 $end_date = array_key_exists('end_date', $params) ? $params['end_date'] : null;
 
                 if ($start_date && $end_date) {
-                    error_log(print_r($start_date, true));
                     return $this->api->get_user_logs_by_date_range($user_id, $start_date, $end_date);
                 } else {
                     return $this->api->get_logs($offset, $limit);
@@ -83,7 +82,38 @@ class Struck_endpoints
 
         register_rest_route('struck/v1', 'users', [
             'methods' => 'GET',
-
+            'args' => array(
+                'offset' => array(
+                    'validate_callback' => function ($param) {
+                        return is_numeric($param);
+                    },
+                    'required' => false,
+                ),
+                'limit' => array(
+                    'validate_callback' => function ($param) {
+                        return is_numeric($param);
+                    },
+                    'required' => false,
+                ),
+                'user_id' => array(
+                    'validate_callback' => function ($param) {
+                        return is_numeric($param);
+                    },
+                    'required' => false,
+                ),
+                'start_date' => array(
+                    'validate_callback' => function ($param) {
+                        return $this->validateDate($param);
+                    },
+                    'required' => false,
+                ),
+                'end_date' => array(
+                    'validate_callback' => function ($param) {
+                        return $this->validateDate($param);
+                    },
+                    'required' => false,
+                )
+            ),
             'callback' => function () {
                 $all_users = get_users();
                 $final_users = [];
@@ -95,8 +125,20 @@ class Struck_endpoints
                         'email' => $value->data->user_email,
                     );
                 }
-                error_log(print_r($final_users, true));
+
                 return $final_users;
+            },
+            'permission_callback' => '__return_true',
+            // 'permission_callback' => function () {
+            //      return current_user_can('manage_options');
+            // }
+        ]);
+
+        register_rest_route('struck/v1', 'total', [
+            'methods' => 'GET',
+
+            'callback' => function () {
+                return $this->api->get_total_entries();
             },
             'permission_callback' => '__return_true',
             // 'permission_callback' => function () {

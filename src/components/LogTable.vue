@@ -5,11 +5,30 @@
     >
       <div class="relative mx-4 mt-4">
         <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800">
-              Site maintenance report
-            </h3>
-            <p class="text-slate-500">Review each log or download the file</p>
+          <div class="flex flex-row gap-7 items-center">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-800">
+                Site maintenance report
+              </h3>
+              <p class="text-slate-500">Review each log or download the file</p>
+            </div>
+
+            <div class="flex flex-row gap-4">
+              <button
+                @click="prevPage"
+                :disabled="offset === 0"
+                class="px-1 pt-1 pb-2 w-9 text-2xl m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+              >
+                <
+              </button>
+              <button
+                @click="nextPage"
+                :disabled="offset + limit >= totalLogs"
+                class="px-1 pt-1 pb-2 w-9 text-2xl m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+              >
+                >
+              </button>
+            </div>
           </div>
           <div class="flex items-center gap-2">
             <input
@@ -90,14 +109,16 @@
             <!-- Data Rows -->
             <template v-else>
               <tr
-                v-for="user in filteredUsers"
+                v-for="user in filteredLogs"
                 :key="user.user_id"
                 class="hover:bg-slate-50"
               >
                 <td class="p-4 border-b border-slate-200">
                   {{ user.user_id }}
                 </td>
-                <td class="p-4 border-b border-slate-200">{{ user.name }}</td>
+                <td class="p-4 border-b border-slate-200">
+                  {{ user.user_name }}
+                </td>
                 <td class="p-4 border-b border-slate-200">{{ user.email }}</td>
                 <td class="p-4 border-b border-slate-200">{{ user.role }}</td>
                 <td class="p-4 border-b border-slate-200">
@@ -112,7 +133,7 @@
                       }"
                       class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
                     >
-                      <span>{{ user.action }}</span>
+                      <span>{{ translateAction(user.action_type) }}</span>
                     </div>
                   </div>
                 </td>
@@ -204,7 +225,11 @@
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           >
             <option value="">All Users</option>
-            <option v-for="user in logs" :key="user.user_id" :value="user.name">
+            <option
+              v-for="user in users"
+              :key="user.user_id"
+              :value="user.name"
+            >
               {{ user.name }}
             </option>
           </select>
@@ -291,6 +316,9 @@ const loading = ref(false);
 const settingsData = window.struckData.plugin_options;
 const users = ref([]);
 const logs = ref([]);
+const totalLogs = ref(0);
+const offset = ref(0);
+const limit = ref(10);
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -308,13 +336,91 @@ const getPagespeedData = async () => {
   window.struckData.page_speed_data = response.data;
 };
 
-const fetchLogs = async () => {
+const fetchUsers = async () => {
   try {
     const response = await api.get("users");
     users.value = response.data;
-    console.log(response.data, "logs");
   } catch (error) {
     console.error("Error Fetching the logs:", error);
+  }
+};
+
+const fetchLogs = async () => {
+  isSearching.value = true;
+
+  try {
+    const response = await api.get("logs", {
+      params: { offset: offset.value, limit: limit.value },
+    });
+
+    const logsResponse = await api.get("total");
+
+    logs.value = response.data;
+    totalLogs.value = logsResponse.data;
+    setTimeout(() => {
+      isSearching.value = false;
+    }, 500);
+  } catch (error) {
+    console.error("Error Fetching the logs:", error);
+  }
+};
+
+const nextPage = () => {
+  if (offset.value + limit.value < totalLogs.value) {
+    offset.value += limit.value;
+    fetchLogs();
+  }
+};
+
+const prevPage = () => {
+  if (offset.value > 0) {
+    offset.value -= limit.value;
+    fetchLogs();
+  }
+};
+
+const translateAction = (action) => {
+  switch (action) {
+    case "comment_trashed":
+      return "Comment Trashed";
+    case "comment_deleted":
+      return "Comment Deleted";
+    case "post_publish":
+      return "Post Published";
+    case "login":
+      return "Logged In";
+    case "login_failed":
+      return "Login Failed";
+    case "draft_save":
+      return "Draft Saved";
+    case "media_upload":
+      return "Image Uploaded";
+    case "user_create":
+      return "User Created";
+    case "category_update":
+      return "Category Updated";
+    case "post_schedule":
+      return "Post Scheduled";
+    case "theme_activate":
+      return "Theme Activated";
+    case "plugin_install":
+      return "Plugin Installed";
+    case "comment_reply":
+      return "Comment Replied";
+    case "profile_update":
+      return "Profile Updated";
+    case "settings_update":
+      return "Settings Changed";
+    case "menu_edit":
+      return "Menu Edited";
+    case "password_reset":
+      return "Password Reset";
+    case "database_optimized":
+      return "Database Optimized";
+
+    default:
+      return action.toUpperCase();
+      break;
   }
 };
 
@@ -328,14 +434,13 @@ const struckLogs = ref({
   recommendations: "",
 });
 
-const filteredUsers = computed(() => {
-  return users.value.filter((user) => {
+const filteredLogs = computed(() => {
+  return logs.value.filter((user) => {
     const search = searchQuery.value.toLowerCase();
     return (
-      user.name.toLowerCase().includes(search) ||
+      user.user_name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
       user.role.toLowerCase().includes(search) ||
-      user.action.toLowerCase().includes(search) ||
       user.action_type.toLowerCase().includes(search) ||
       user.action_taken.toLowerCase().includes(search) ||
       user.action_time.toLowerCase().includes(search)
@@ -486,7 +591,7 @@ async function exportToPDF() {
   `;
 
   const tableElement = document.getElementById("export-table");
-  if (!filteredUsers.value.length) {
+  if (!filteredLogs.value.length) {
     alert("No data available to export.");
     return;
   }
@@ -893,7 +998,7 @@ async function exportToPDF() {
   // Footer
   const footer = document.createElement("div");
   footer.innerHTML = `
-    <div 
+    <div
     style="
       position: relative;
       bottom: 0;
@@ -969,6 +1074,7 @@ async function exportToPDF() {
 }
 
 onMounted(() => {
+  fetchUsers();
   fetchLogs();
 });
 </script>
