@@ -53,8 +53,9 @@ class Struck_API
     foreach ($logs as &$value) {
       $user = get_userdata($value->user_id);
       $user_email = $user->data->user_email;
-
+      $role = $user->data->user_nicename;
       $value->email = $user_email;
+      $value->role = $role;
     }
 
     return $logs;

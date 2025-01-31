@@ -225,11 +225,7 @@
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           >
             <option value="">All Users</option>
-            <option
-              v-for="user in users"
-              :key="user.user_id"
-              :value="user.name"
-            >
+            <option v-for="user in users" :key="user.id" :value="user.id">
               {{ user.name }}
             </option>
           </select>
@@ -345,12 +341,24 @@ const fetchUsers = async () => {
   }
 };
 
-const fetchLogs = async () => {
+const fetchLogs = async (
+  offset = 0,
+  limit = 10,
+  id = null,
+  startDate = null,
+  endDate = null
+) => {
   isSearching.value = true;
 
   try {
     const response = await api.get("logs", {
-      params: { offset: offset.value, limit: limit.value },
+      params: {
+        offset: offset,
+        limit: limit,
+        user_id: id,
+        start_date: startDate,
+        end_date: endDate,
+      },
     });
 
     const logsResponse = await api.get("total");
@@ -368,14 +376,14 @@ const fetchLogs = async () => {
 const nextPage = () => {
   if (offset.value + limit.value < totalLogs.value) {
     offset.value += limit.value;
-    fetchLogs();
+    fetchLogs(offset.value, limit.value);
   }
 };
 
 const prevPage = () => {
   if (offset.value > 0) {
     offset.value -= limit.value;
-    fetchLogs();
+    fetchLogs(offset.value, limit.value);
   }
 };
 
@@ -492,6 +500,14 @@ function scoreColor(score) {
 }
 async function exportToPDF() {
   await getPagespeedData();
+  fetchLogs(
+    0,
+    10,
+    struckLogs.value.user,
+    struckLogs.value.startDate,
+    struckLogs.value.endDate
+  );
+  console.log(struckLogs.value, "struck logs");
   const pluginsData = window.struckData.installed_plugins || [];
 
   const wrapperElement = document.createElement("div");
@@ -682,7 +698,11 @@ async function exportToPDF() {
   wordfence.style.paddingTop = "20px";
   wordfence.innerHTML = `
     <h3 style="border-bottom: 1px solid ${backgroundColor}; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
-    <p><b>*${wordfenceData?.lastMessage}</b></p>
+    <p><b>*${
+      wordfenceData?.lastMessage
+        ? wordfenceData?.lastMessage
+        : "No scan has been run lately"
+    }</b></p>
   `;
 
   const wordfenceTableContainer = document.createElement("div");
@@ -699,9 +719,12 @@ async function exportToPDF() {
             </tr>
         </thead>
     <tbody>
-        ${wordfenceData?.issues?.new
-          .map(
-            (plugin) => `
+        ${
+          wordfenceData?.issues.length > 0
+            ? wordfenceData?.issues?.new
+            : []
+                .map(
+                  (plugin) => `
           <tr>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
               plugin?.data?.Title
@@ -723,8 +746,9 @@ async function exportToPDF() {
             }</td>
           </tr>
         `
-          )
-          .join("")}
+                )
+                .join("")
+        }
       </tbody>
     </table>
   `;
@@ -1075,7 +1099,7 @@ async function exportToPDF() {
 
 onMounted(() => {
   fetchUsers();
-  fetchLogs();
+  fetchLogs(offset.value, limit.value);
 });
 </script>
 

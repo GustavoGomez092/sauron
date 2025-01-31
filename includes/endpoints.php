@@ -23,7 +23,6 @@ class Struck_endpoints
     // Create a REST endpoint to consume get_pagespeed_data
     public function api_init()
     {
-
         register_rest_route('struck/v1', '/logs/', [
             'methods' => 'GET',
             'args' => array(
