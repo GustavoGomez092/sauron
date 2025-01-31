@@ -204,11 +204,7 @@
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           >
             <option value="">All Users</option>
-            <option
-              v-for="user in users"
-              :key="user.user_id"
-              :value="user.name"
-            >
+            <option v-for="user in logs" :key="user.user_id" :value="user.name">
               {{ user.name }}
             </option>
           </select>
@@ -284,7 +280,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import html2pdf from "html2pdf.js";
 import axios from "axios";
 
@@ -293,6 +289,8 @@ const searchQuery = ref("");
 const isSearching = ref(false);
 const loading = ref(false);
 const settingsData = window.struckData.plugin_options;
+const users = ref([]);
+const logs = ref([]);
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -310,6 +308,16 @@ const getPagespeedData = async () => {
   window.struckData.page_speed_data = response.data;
 };
 
+const fetchLogs = async () => {
+  try {
+    const response = await api.get("users");
+    users.value = response.data;
+    console.log(response.data, "logs");
+  } catch (error) {
+    console.error("Error Fetching the logs:", error);
+  }
+};
+
 const struckLogs = ref({
   startDate: "",
   endDate: "",
@@ -319,201 +327,6 @@ const struckLogs = ref({
   summary: "",
   recommendations: "",
 });
-
-const users = ref([
-  {
-    user_id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    role: "Admin",
-    action: "Logged In",
-    action_type: "login",
-    action_taken: "User logged in.",
-    action_time: "2025-01-16 11:28:58",
-  },
-  {
-    user_id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "Editor",
-    action: "Logged Out",
-    action_type: "logout",
-    action_taken: "User logged out.",
-    action_time: "2025-01-16 11:29:17",
-  },
-  {
-    user_id: 3,
-    name: "Sam Wilson",
-    email: "sam@example.com",
-    role: "Viewer",
-    action: "Comment Deleted",
-    action_type: "comment_deleted",
-    action_taken:
-      "User deleted a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 1",
-    action_time: "2025-01-16 11:29:35",
-  },
-  {
-    user_id: 4,
-    name: "Bismarck Sevilla",
-    email: "bismarck@example.com",
-    role: "Editor",
-    action: "Comment Trashed",
-    action_type: "comment_trashed",
-    action_taken:
-      "User trashed a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 2",
-    action_time: "2025-01-16 11:29:52",
-  },
-  {
-    user_id: 5,
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    role: "Author",
-    action: "Post Published",
-    action_type: "post_publish",
-    action_taken: "User published the post: 'Top 10 Tips for Blogging'.",
-    action_time: "2025-01-16 11:30:15",
-  },
-  {
-    user_id: 6,
-    name: "Bob Brown",
-    email: "bob@example.com",
-    role: "Admin",
-    action: "Login Failed",
-    action_type: "login_failed",
-    action_taken: "User attempted to log in with an incorrect password.",
-    action_time: "2025-01-16 11:31:20",
-  },
-  {
-    user_id: 7,
-    name: "Clara Davis",
-    email: "clara@example.com",
-    role: "Contributor",
-    action: "Draft Saved",
-    action_type: "draft_save",
-    action_taken: "User saved a draft for the post '2025 Trends'.",
-    action_time: "2025-01-16 11:33:45",
-  },
-  {
-    user_id: 9,
-    name: "Fiona Green",
-    email: "fiona@example.com",
-    role: "Author",
-    action: "Image Uploaded",
-    action_type: "media_upload",
-    action_taken: "User uploaded the image 'summer.jpg'.",
-    action_time: "2025-01-16 11:40:50",
-  },
-  {
-    user_id: 10,
-    name: "George Hill",
-    email: "george@example.com",
-    role: "Admin",
-    action: "User Created",
-    action_type: "user_create",
-    action_taken: "Admin created a new user account for 'Samantha Lee'.",
-    action_time: "2025-01-16 11:45:10",
-  },
-  {
-    user_id: 11,
-    name: "Henry Adams",
-    email: "henry@example.com",
-    role: "Editor",
-    action: "Category Updated",
-    action_type: "category_update",
-    action_taken: "User updated the category 'Technology'.",
-    action_time: "2025-01-16 11:47:25",
-  },
-  {
-    user_id: 12,
-    name: "Isla Brown",
-    email: "isla@example.com",
-    role: "Contributor",
-    action: "Post Scheduled",
-    action_type: "post_schedule",
-    action_taken: "User scheduled the post 'Spring Collection' to publish.",
-    action_time: "2025-01-16 11:50:00",
-  },
-  {
-    user_id: 13,
-    name: "Jack Carter",
-    email: "jack@example.com",
-    role: "Admin",
-    action: "Theme Activated",
-    action_type: "theme_activate",
-    action_taken: "User activated the theme 'OceanWP'.",
-    action_time: "2025-01-16 11:55:12",
-  },
-  {
-    user_id: 14,
-    name: "Kara Evans",
-    email: "kara@example.com",
-    role: "Admin",
-    action: "Plugin Installed",
-    action_type: "plugin_install",
-    action_taken: "User installed the plugin 'Yoast SEO'.",
-    action_time: "2025-01-16 12:00:50",
-  },
-  {
-    user_id: 15,
-    name: "Liam Moore",
-    email: "liam@example.com",
-    role: "Author",
-    action: "Comment Replied",
-    action_type: "comment_reply",
-    action_taken: "User replied to a comment on the post 'Summer Guide'.",
-    action_time: "2025-01-16 12:05:30",
-  },
-  {
-    user_id: 16,
-    name: "Mia Taylor",
-    email: "mia@example.com",
-    role: "Subscriber",
-    action: "Profile Updated",
-    action_type: "profile_update",
-    action_taken: "User updated their profile information.",
-    action_time: "2025-01-16 12:10:20",
-  },
-  {
-    user_id: 17,
-    name: "Noah Jackson",
-    email: "noah@example.com",
-    role: "Admin",
-    action: "Settings Changed",
-    action_type: "settings_update",
-    action_taken: "User updated the site title and tagline.",
-    action_time: "2025-01-16 12:15:10",
-  },
-  {
-    user_id: 18,
-    name: "Olivia Harris",
-    email: "olivia@example.com",
-    role: "Editor",
-    action: "Menu Edited",
-    action_type: "menu_edit",
-    action_taken: "User edited the main navigation menu.",
-    action_time: "2025-01-16 12:20:45",
-  },
-  {
-    user_id: 19,
-    name: "Paul Walker",
-    email: "paul@example.com",
-    role: "Viewer",
-    action: "Password Reset",
-    action_type: "password_reset",
-    action_taken: "User reset their account password.",
-    action_time: "2025-01-16 12:25:30",
-  },
-  {
-    user_id: 20,
-    name: "Quinn Brooks",
-    email: "quinn@example.com",
-    role: "Admin",
-    action: "Database Optimized",
-    action_type: "database_optimized",
-    action_taken: "User optimized the database tables.",
-    action_time: "2025-01-16 12:30:20",
-  },
-]);
 
 const filteredUsers = computed(() => {
   return users.value.filter((user) => {
@@ -1154,6 +967,10 @@ async function exportToPDF() {
   loading.value = false;
   closestruckLogsModal();
 }
+
+onMounted(() => {
+  fetchLogs();
+});
 </script>
 
 <style scoped>
