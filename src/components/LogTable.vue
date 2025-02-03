@@ -1086,7 +1086,9 @@ async function exportToPDF() {
   wrapperElement.appendChild(header);
   wrapperElement.appendChild(title);
   wrapperElement.appendChild(projectSummary);
-  wrapperElement.appendChild(statusSummary);
+  if (struckLogs.summary) {
+    wrapperElement.appendChild(statusSummary);
+  }
   wrapperElement.appendChild(projectOverview);
   wrapperElement.appendChild(logsTableContainer);
   wrapperElement.appendChild(installedPluginsHeader);
@@ -1095,7 +1097,9 @@ async function exportToPDF() {
   wrapperElement.appendChild(wordfenceTableContainer);
   wrapperElement.appendChild(pageSpeedDataHeading);
   wrapperElement.appendChild(pageSpeedData);
-  wrapperElement.appendChild(recommendations);
+  if (struckLogs.recommendations) {
+    wrapperElement.appendChild(recommendations);
+  }
   wrapperElement.appendChild(footer);
 
   const exportedDocument = document.querySelector(".export");
