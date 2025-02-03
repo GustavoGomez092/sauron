@@ -5,11 +5,34 @@
     >
       <div class="relative mx-4 mt-4">
         <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800">
-              Site maintenance report
-            </h3>
-            <p class="text-slate-500">Review each log or download the file</p>
+          <div class="flex flex-row gap-7 items-center">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-800">
+                Site maintenance report
+              </h3>
+              <p class="text-slate-500">Review each log or download the file</p>
+            </div>
+
+            <div class="flex flex-row gap-4 items-center">
+              <button
+                @click="prevPage"
+                :disabled="offset === 0"
+                class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+              >
+                Previous
+              </button>
+              <button
+                @click="nextPage"
+                :disabled="offset + limit >= totalLogs"
+                class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+              >
+                Next
+              </button>
+
+              <p class="m-0" v-if="totalLogs">
+                Page {{ currentPage }} of {{ Math.ceil(totalLogs / 10) }}
+              </p>
+            </div>
           </div>
           <div class="flex items-center gap-2">
             <input
@@ -37,25 +60,22 @@
         >
           <thead>
             <tr>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
-                ID
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Name
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Email
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Role
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Action
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Action Taken
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Action Time
               </th>
             </tr>
@@ -90,16 +110,17 @@
             <!-- Data Rows -->
             <template v-else>
               <tr
-                v-for="user in filteredUsers"
+                v-for="user in filteredLogs"
                 :key="user.user_id"
                 class="hover:bg-slate-50"
               >
                 <td class="p-4 border-b border-slate-200">
-                  {{ user.user_id }}
+                  {{ user.user_name }}
                 </td>
-                <td class="p-4 border-b border-slate-200">{{ user.name }}</td>
                 <td class="p-4 border-b border-slate-200">{{ user.email }}</td>
-                <td class="p-4 border-b border-slate-200">{{ user.role }}</td>
+                <td class="p-4 border-b border-slate-200">
+                  {{ user.role }}
+                </td>
                 <td class="p-4 border-b border-slate-200">
                   <div class="w-max">
                     <div
@@ -112,7 +133,7 @@
                       }"
                       class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
                     >
-                      <span>{{ user.action }}</span>
+                      <span>{{ translateAction(user.action_type) }}</span>
                     </div>
                   </div>
                 </td>
@@ -204,11 +225,7 @@
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
           >
             <option value="">All Users</option>
-            <option
-              v-for="user in users"
-              :key="user.user_id"
-              :value="user.name"
-            >
+            <option v-for="user in users" :key="user.id" :value="user.id">
               {{ user.name }}
             </option>
           </select>
@@ -284,7 +301,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import html2pdf from "html2pdf.js";
 import axios from "axios";
 
@@ -293,6 +310,13 @@ const searchQuery = ref("");
 const isSearching = ref(false);
 const loading = ref(false);
 const settingsData = window.struckData.plugin_options;
+const users = ref([]);
+const reportLogs = ref([]);
+const logs = ref([]);
+const totalLogs = ref(0);
+const offset = ref(0);
+const limit = ref(10);
+const currentPage = ref(1);
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -310,6 +334,114 @@ const getPagespeedData = async () => {
   window.struckData.page_speed_data = response.data;
 };
 
+const fetchUsers = async () => {
+  try {
+    const response = await api.get("users");
+    users.value = response.data;
+  } catch (error) {
+    console.error("Error Fetching the logs:", error);
+  }
+};
+
+const fetchLogs = async (
+  offset = 0,
+  limit = 10,
+  id = null,
+  startDate = null,
+  endDate = null,
+  report = false
+) => {
+  isSearching.value = true;
+
+  try {
+    const response = await api.get("logs", {
+      params: {
+        offset: offset,
+        limit: limit,
+        user_id: id,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+
+    const logsResponse = await api.get("total");
+
+    if (report) {
+      reportLogs.value = response.data;
+    } else {
+      logs.value = response.data;
+      totalLogs.value = logsResponse.data;
+    }
+
+    setTimeout(() => {
+      isSearching.value = false;
+    }, 500);
+  } catch (error) {
+    console.error("Error Fetching the logs:", error);
+  }
+};
+
+const nextPage = () => {
+  if (offset.value + limit.value < totalLogs.value) {
+    currentPage.value += 1;
+    offset.value += limit.value;
+    fetchLogs(offset.value, limit.value);
+  }
+};
+
+const prevPage = () => {
+  if (offset.value > 0) {
+    currentPage.value -= 1;
+    offset.value -= limit.value;
+    fetchLogs(offset.value, limit.value);
+  }
+};
+
+const translateAction = (action) => {
+  switch (action) {
+    case "comment_trashed":
+      return "Comment Trashed";
+    case "comment_deleted":
+      return "Comment Deleted";
+    case "post_publish":
+      return "Post Published";
+    case "login":
+      return "Logged In";
+    case "login_failed":
+      return "Login Failed";
+    case "draft_save":
+      return "Draft Saved";
+    case "media_upload":
+      return "Image Uploaded";
+    case "user_create":
+      return "User Created";
+    case "category_update":
+      return "Category Updated";
+    case "post_schedule":
+      return "Post Scheduled";
+    case "theme_activate":
+      return "Theme Activated";
+    case "plugin_install":
+      return "Plugin Installed";
+    case "comment_reply":
+      return "Comment Replied";
+    case "profile_update":
+      return "Profile Updated";
+    case "settings_update":
+      return "Settings Changed";
+    case "menu_edit":
+      return "Menu Edited";
+    case "password_reset":
+      return "Password Reset";
+    case "database_optimized":
+      return "Database Optimized";
+
+    default:
+      return action.toUpperCase();
+      break;
+  }
+};
+
 const struckLogs = ref({
   startDate: "",
   endDate: "",
@@ -320,209 +452,13 @@ const struckLogs = ref({
   recommendations: "",
 });
 
-const users = ref([
-  {
-    user_id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    role: "Admin",
-    action: "Logged In",
-    action_type: "login",
-    action_taken: "User logged in.",
-    action_time: "2025-01-16 11:28:58",
-  },
-  {
-    user_id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "Editor",
-    action: "Logged Out",
-    action_type: "logout",
-    action_taken: "User logged out.",
-    action_time: "2025-01-16 11:29:17",
-  },
-  {
-    user_id: 3,
-    name: "Sam Wilson",
-    email: "sam@example.com",
-    role: "Viewer",
-    action: "Comment Deleted",
-    action_type: "comment_deleted",
-    action_taken:
-      "User deleted a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 1",
-    action_time: "2025-01-16 11:29:35",
-  },
-  {
-    user_id: 4,
-    name: "Bismarck Sevilla",
-    email: "bismarck@example.com",
-    role: "Editor",
-    action: "Comment Trashed",
-    action_type: "comment_trashed",
-    action_taken:
-      "User trashed a spam comment. Comment author: A WordPress Commenter. Author email: wapuu@wordpress.example. Comment ID: 2",
-    action_time: "2025-01-16 11:29:52",
-  },
-  {
-    user_id: 5,
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    role: "Author",
-    action: "Post Published",
-    action_type: "post_publish",
-    action_taken: "User published the post: 'Top 10 Tips for Blogging'.",
-    action_time: "2025-01-16 11:30:15",
-  },
-  {
-    user_id: 6,
-    name: "Bob Brown",
-    email: "bob@example.com",
-    role: "Admin",
-    action: "Login Failed",
-    action_type: "login_failed",
-    action_taken: "User attempted to log in with an incorrect password.",
-    action_time: "2025-01-16 11:31:20",
-  },
-  {
-    user_id: 7,
-    name: "Clara Davis",
-    email: "clara@example.com",
-    role: "Contributor",
-    action: "Draft Saved",
-    action_type: "draft_save",
-    action_taken: "User saved a draft for the post '2025 Trends'.",
-    action_time: "2025-01-16 11:33:45",
-  },
-  {
-    user_id: 9,
-    name: "Fiona Green",
-    email: "fiona@example.com",
-    role: "Author",
-    action: "Image Uploaded",
-    action_type: "media_upload",
-    action_taken: "User uploaded the image 'summer.jpg'.",
-    action_time: "2025-01-16 11:40:50",
-  },
-  {
-    user_id: 10,
-    name: "George Hill",
-    email: "george@example.com",
-    role: "Admin",
-    action: "User Created",
-    action_type: "user_create",
-    action_taken: "Admin created a new user account for 'Samantha Lee'.",
-    action_time: "2025-01-16 11:45:10",
-  },
-  {
-    user_id: 11,
-    name: "Henry Adams",
-    email: "henry@example.com",
-    role: "Editor",
-    action: "Category Updated",
-    action_type: "category_update",
-    action_taken: "User updated the category 'Technology'.",
-    action_time: "2025-01-16 11:47:25",
-  },
-  {
-    user_id: 12,
-    name: "Isla Brown",
-    email: "isla@example.com",
-    role: "Contributor",
-    action: "Post Scheduled",
-    action_type: "post_schedule",
-    action_taken: "User scheduled the post 'Spring Collection' to publish.",
-    action_time: "2025-01-16 11:50:00",
-  },
-  {
-    user_id: 13,
-    name: "Jack Carter",
-    email: "jack@example.com",
-    role: "Admin",
-    action: "Theme Activated",
-    action_type: "theme_activate",
-    action_taken: "User activated the theme 'OceanWP'.",
-    action_time: "2025-01-16 11:55:12",
-  },
-  {
-    user_id: 14,
-    name: "Kara Evans",
-    email: "kara@example.com",
-    role: "Admin",
-    action: "Plugin Installed",
-    action_type: "plugin_install",
-    action_taken: "User installed the plugin 'Yoast SEO'.",
-    action_time: "2025-01-16 12:00:50",
-  },
-  {
-    user_id: 15,
-    name: "Liam Moore",
-    email: "liam@example.com",
-    role: "Author",
-    action: "Comment Replied",
-    action_type: "comment_reply",
-    action_taken: "User replied to a comment on the post 'Summer Guide'.",
-    action_time: "2025-01-16 12:05:30",
-  },
-  {
-    user_id: 16,
-    name: "Mia Taylor",
-    email: "mia@example.com",
-    role: "Subscriber",
-    action: "Profile Updated",
-    action_type: "profile_update",
-    action_taken: "User updated their profile information.",
-    action_time: "2025-01-16 12:10:20",
-  },
-  {
-    user_id: 17,
-    name: "Noah Jackson",
-    email: "noah@example.com",
-    role: "Admin",
-    action: "Settings Changed",
-    action_type: "settings_update",
-    action_taken: "User updated the site title and tagline.",
-    action_time: "2025-01-16 12:15:10",
-  },
-  {
-    user_id: 18,
-    name: "Olivia Harris",
-    email: "olivia@example.com",
-    role: "Editor",
-    action: "Menu Edited",
-    action_type: "menu_edit",
-    action_taken: "User edited the main navigation menu.",
-    action_time: "2025-01-16 12:20:45",
-  },
-  {
-    user_id: 19,
-    name: "Paul Walker",
-    email: "paul@example.com",
-    role: "Viewer",
-    action: "Password Reset",
-    action_type: "password_reset",
-    action_taken: "User reset their account password.",
-    action_time: "2025-01-16 12:25:30",
-  },
-  {
-    user_id: 20,
-    name: "Quinn Brooks",
-    email: "quinn@example.com",
-    role: "Admin",
-    action: "Database Optimized",
-    action_type: "database_optimized",
-    action_taken: "User optimized the database tables.",
-    action_time: "2025-01-16 12:30:20",
-  },
-]);
-
-const filteredUsers = computed(() => {
-  return users.value.filter((user) => {
+const filteredLogs = computed(() => {
+  return logs.value.filter((user) => {
     const search = searchQuery.value.toLowerCase();
     return (
-      user.name.toLowerCase().includes(search) ||
+      user.user_name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
       user.role.toLowerCase().includes(search) ||
-      user.action.toLowerCase().includes(search) ||
       user.action_type.toLowerCase().includes(search) ||
       user.action_taken.toLowerCase().includes(search) ||
       user.action_time.toLowerCase().includes(search)
@@ -574,6 +510,15 @@ function scoreColor(score) {
 }
 async function exportToPDF() {
   await getPagespeedData();
+  await fetchLogs(
+    0,
+    10,
+    struckLogs.value.user ? struckLogs.value.user : null,
+    struckLogs.value.startDate,
+    struckLogs.value.endDate,
+    true
+  );
+
   const pluginsData = window.struckData.installed_plugins || [];
 
   const wrapperElement = document.createElement("div");
@@ -672,47 +617,68 @@ async function exportToPDF() {
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
   `;
 
-  const tableElement = document.getElementById("export-table");
-  if (!filteredUsers.value.length) {
+  // const tableElement = document.getElementById("export-table");
+  const logsTableContainer = document.createElement("div");
+  if (!filteredLogs.value.length) {
     alert("No data available to export.");
     return;
   }
-  const clonedTable = tableElement.cloneNode(true);
 
-  clonedTable
-    .querySelectorAll("th:first-child, td:first-child")
-    .forEach((cell) => {
-      cell.style.display = "none";
-    });
+  logsTableContainer.innerHTML = `
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
+    <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+      <tr>
+        <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Email</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Role</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action Taken</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${reportLogs.value
+        .map(
+          (log) => `
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.user_name || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.email || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.role || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
+              <div class="w-max">
+                <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
+                  ${
+                    log?.action_type === "comment_deleted"
+                      ? "bg-red-50 text-red-900"
+                      : log?.action_type === "comment_trashed"
+                      ? "bg-yellow-50 text-yellow-900"
+                      : "bg-green-500/20 text-green-900"
+                  }">
+                  <span>${translateAction(log?.action_type)}</span>
+                </div>
+              </div>
+            </td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.action_taken || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.action_time || "-"
+            }</td>
+          </tr>
+        `
+        )
+        .join("")}
+    </tbody>
+  </table>
+`;
 
-  clonedTable.style.width = "100%";
-  clonedTable.style.borderCollapse = "collapse";
-
-  clonedTable.querySelectorAll("th").forEach((header, index) => {
-    header.style.border = "1px solid #ccc";
-    header.style.padding = "8px";
-    header.style.textAlign = "left";
-    header.style.backgroundColor = backgroundColor;
-    header.style.color = textColor;
-
-    if (index === 0) header.style.width = "3%";
-    if (index === 1) header.style.width = "20%";
-    if (index === 2) header.style.width = "25%";
-    if (index === 3) header.style.width = "10%";
-    if (index === 4) header.style.width = "27%";
-    if (index === 5) header.style.width = "30%";
-    if (index === 6) header.style.width = "15%";
-  });
-
-  clonedTable.querySelectorAll("td").forEach((cell) => {
-    cell.style.border = "1px solid #ccc";
-    cell.style.padding = "8px";
-    cell.style.textAlign = "left";
-    cell.style.wordBreak = "break-word";
-    cell.style.fontSize = "11px";
-  });
-
-  projectOverview.appendChild(clonedTable);
+  // projectOverview.appendChild(clonedTable);
   // Table ends
 
   // Plugins Table
@@ -764,7 +730,11 @@ async function exportToPDF() {
   wordfence.style.paddingTop = "20px";
   wordfence.innerHTML = `
     <h3 style="border-bottom: 1px solid ${backgroundColor}; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
-    <p><b>*${wordfenceData?.lastMessage}</b></p>
+    <p><b>*${
+      wordfenceData?.lastMessage
+        ? wordfenceData?.lastMessage
+        : "No scan has been run lately"
+    }</b></p>
   `;
 
   const wordfenceTableContainer = document.createElement("div");
@@ -1080,7 +1050,7 @@ async function exportToPDF() {
   // Footer
   const footer = document.createElement("div");
   footer.innerHTML = `
-    <div 
+    <div
     style="
       position: relative;
       bottom: 0;
@@ -1116,15 +1086,20 @@ async function exportToPDF() {
   wrapperElement.appendChild(header);
   wrapperElement.appendChild(title);
   wrapperElement.appendChild(projectSummary);
-  wrapperElement.appendChild(statusSummary);
+  if (struckLogs.summary) {
+    wrapperElement.appendChild(statusSummary);
+  }
   wrapperElement.appendChild(projectOverview);
+  wrapperElement.appendChild(logsTableContainer);
   wrapperElement.appendChild(installedPluginsHeader);
   wrapperElement.appendChild(pluginsTableContainer);
   wrapperElement.appendChild(wordfence);
   wrapperElement.appendChild(wordfenceTableContainer);
   wrapperElement.appendChild(pageSpeedDataHeading);
   wrapperElement.appendChild(pageSpeedData);
-  wrapperElement.appendChild(recommendations);
+  if (struckLogs.recommendations) {
+    wrapperElement.appendChild(recommendations);
+  }
   wrapperElement.appendChild(footer);
 
   const exportedDocument = document.querySelector(".export");
@@ -1154,6 +1129,11 @@ async function exportToPDF() {
   loading.value = false;
   closestruckLogsModal();
 }
+
+onMounted(() => {
+  fetchUsers();
+  fetchLogs(offset.value, limit.value);
+});
 </script>
 
 <style scoped>

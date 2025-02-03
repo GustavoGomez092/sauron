@@ -1,6 +1,6 @@
 <?
 
-class struck_API
+class Struck_API
 {
 
   /**
@@ -8,35 +8,34 @@ class struck_API
    *
    * @return array|null List of logged actions.
    */
-  public function get_logs()
+  public function get_logs($offset, $limit)
   {
     global $wpdb;
     $table_name = $wpdb->prefix . 'struck_logs';
-    $logs = $wpdb->get_results("SELECT * FROM $table_name");
+    // $total_entries = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC LIMIT $limit OFFSET $offset");
+
+
+    foreach ($logs as &$value) {
+
+      $user = get_userdata($value->user_id);
+      $user_email = $user->data->user_email;
+      $role = $user->roles[0];
+      $value->email = $user_email;
+      $value->role = $role;
+    }
     return $logs;
   }
 
-  /**
-   * Retrieves the logs for an specific user.
-   */
-  public function get_user_logs($user_id)
+  public function get_total_entries()
   {
     global $wpdb;
     $table_name = $wpdb->prefix . 'struck_logs';
-    $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d", $user_id));
-    return $logs;
+    $total_entries = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+
+    return $total_entries;
   }
 
-  /**
-   * Retrieves the logs for an specific user and date.
-   */
-  public function get_user_logs_by_date($user_id, $date)
-  {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'struck_logs';
-    $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d AND DATE(action_time) = %s", $user_id, $date));
-    return $logs;
-  }
 
   /**
    * Retrieves the logs for an specific user and date range.
@@ -45,8 +44,21 @@ class struck_API
   {
     global $wpdb;
     $table_name = $wpdb->prefix . 'struck_logs';
-    $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d AND DATE(action_time) BETWEEN %s AND %s", $user_id, $start_date, $end_date));
+    $logs = '';
+    if (!$user_id) {
+      $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE DATE(action_time) BETWEEN %s AND %s", $start_date, $end_date));
+    } else {
+      $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d AND DATE(action_time) BETWEEN %s AND %s", $user_id, $start_date, $end_date));
+    }
+
+    foreach ($logs as &$value) {
+      $user = get_userdata($value->user_id);
+      $user_email = $user->data->user_email;
+      $role = $user->roles[0];
+      $value->email = $user_email;
+      $value->role = $role;
+    }
+
     return $logs;
   }
-
 }

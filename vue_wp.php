@@ -22,6 +22,7 @@ class struck
         require('plugin_options.php');
         require('includes/table_creation.php');
         require('includes/actions.php');
+        require('includes/endpoints.php');
         add_action('admin_enqueue_scripts', [$this, 'REST_API_DATA_LOCALIZER']);
     }
 
@@ -67,10 +68,8 @@ class struck
             substr($_SERVER['REMOTE_ADDR'], 0, 4) == '127.'
             || $_SERVER['REMOTE_ADDR'] == '::1'
         ) {
-            error_log('Localhost detected');
             $url = 'https://www.struck.com';
         } else {
-            error_log('Not Localhost');
             $url = site_url();
         }
 
@@ -208,7 +207,6 @@ class struck
         } else {
             $handle .= 'dev';
             wp_enqueue_script($handle, 'http://localhost:5173/src/main.js', ['wp-element'], '0.1', true);
-
         }
         return "<div id='struck' class='struck'></div>";
     }
