@@ -13,21 +13,25 @@
               <p class="text-slate-500">Review each log or download the file</p>
             </div>
 
-            <div class="flex flex-row gap-4">
+            <div class="flex flex-row gap-4 items-center">
               <button
                 @click="prevPage"
                 :disabled="offset === 0"
-                class="px-1 pt-1 pb-2 w-9 text-2xl m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+                class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
               >
-                <
+                Previous
               </button>
               <button
                 @click="nextPage"
                 :disabled="offset + limit >= totalLogs"
-                class="px-1 pt-1 pb-2 w-9 text-2xl m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+                class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
               >
-                >
+                Next
               </button>
+
+              <p class="m-0" v-if="totalLogs">
+                Page {{ currentPage }} of {{ Math.ceil(totalLogs / 10) }}
+              </p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -56,25 +60,22 @@
         >
           <thead>
             <tr>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
-                ID
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Name
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Email
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Role
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Action
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Action Taken
               </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/7">
+              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
                 Action Time
               </th>
             </tr>
@@ -114,13 +115,12 @@
                 class="hover:bg-slate-50"
               >
                 <td class="p-4 border-b border-slate-200">
-                  {{ user.user_id }}
-                </td>
-                <td class="p-4 border-b border-slate-200">
                   {{ user.user_name }}
                 </td>
                 <td class="p-4 border-b border-slate-200">{{ user.email }}</td>
-                <td class="p-4 border-b border-slate-200">{{ user.role }}</td>
+                <td class="p-4 border-b border-slate-200">
+                  {{ user.role }}
+                </td>
                 <td class="p-4 border-b border-slate-200">
                   <div class="w-max">
                     <div
@@ -311,10 +311,12 @@ const isSearching = ref(false);
 const loading = ref(false);
 const settingsData = window.struckData.plugin_options;
 const users = ref([]);
+const reportLogs = ref([]);
 const logs = ref([]);
 const totalLogs = ref(0);
 const offset = ref(0);
 const limit = ref(10);
+const currentPage = ref(1);
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -346,7 +348,8 @@ const fetchLogs = async (
   limit = 10,
   id = null,
   startDate = null,
-  endDate = null
+  endDate = null,
+  report = false
 ) => {
   isSearching.value = true;
 
@@ -363,8 +366,13 @@ const fetchLogs = async (
 
     const logsResponse = await api.get("total");
 
-    logs.value = response.data;
-    totalLogs.value = logsResponse.data;
+    if (report) {
+      reportLogs.value = response.data;
+    } else {
+      logs.value = response.data;
+      totalLogs.value = logsResponse.data;
+    }
+
     setTimeout(() => {
       isSearching.value = false;
     }, 500);
@@ -375,6 +383,7 @@ const fetchLogs = async (
 
 const nextPage = () => {
   if (offset.value + limit.value < totalLogs.value) {
+    currentPage.value += 1;
     offset.value += limit.value;
     fetchLogs(offset.value, limit.value);
   }
@@ -382,6 +391,7 @@ const nextPage = () => {
 
 const prevPage = () => {
   if (offset.value > 0) {
+    currentPage.value -= 1;
     offset.value -= limit.value;
     fetchLogs(offset.value, limit.value);
   }
@@ -500,14 +510,15 @@ function scoreColor(score) {
 }
 async function exportToPDF() {
   await getPagespeedData();
-  fetchLogs(
+  await fetchLogs(
     0,
     10,
-    struckLogs.value.user,
+    struckLogs.value.user ? struckLogs.value.user : null,
     struckLogs.value.startDate,
-    struckLogs.value.endDate
+    struckLogs.value.endDate,
+    true
   );
-  console.log(struckLogs.value, "struck logs");
+
   const pluginsData = window.struckData.installed_plugins || [];
 
   const wrapperElement = document.createElement("div");
@@ -606,47 +617,68 @@ async function exportToPDF() {
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
   `;
 
-  const tableElement = document.getElementById("export-table");
+  // const tableElement = document.getElementById("export-table");
+  const logsTableContainer = document.createElement("div");
   if (!filteredLogs.value.length) {
     alert("No data available to export.");
     return;
   }
-  const clonedTable = tableElement.cloneNode(true);
 
-  clonedTable
-    .querySelectorAll("th:first-child, td:first-child")
-    .forEach((cell) => {
-      cell.style.display = "none";
-    });
+  logsTableContainer.innerHTML = `
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
+    <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+      <tr>
+        <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Email</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Role</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action Taken</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${reportLogs.value
+        .map(
+          (log) => `
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.user_name || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.email || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.role || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
+              <div class="w-max">
+                <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
+                  ${
+                    log?.action_type === "comment_deleted"
+                      ? "bg-red-50 text-red-900"
+                      : log?.action_type === "comment_trashed"
+                      ? "bg-yellow-50 text-yellow-900"
+                      : "bg-green-500/20 text-green-900"
+                  }">
+                  <span>${translateAction(log?.action_type)}</span>
+                </div>
+              </div>
+            </td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.action_taken || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.action_time || "-"
+            }</td>
+          </tr>
+        `
+        )
+        .join("")}
+    </tbody>
+  </table>
+`;
 
-  clonedTable.style.width = "100%";
-  clonedTable.style.borderCollapse = "collapse";
-
-  clonedTable.querySelectorAll("th").forEach((header, index) => {
-    header.style.border = "1px solid #ccc";
-    header.style.padding = "8px";
-    header.style.textAlign = "left";
-    header.style.backgroundColor = backgroundColor;
-    header.style.color = textColor;
-
-    if (index === 0) header.style.width = "3%";
-    if (index === 1) header.style.width = "20%";
-    if (index === 2) header.style.width = "25%";
-    if (index === 3) header.style.width = "10%";
-    if (index === 4) header.style.width = "27%";
-    if (index === 5) header.style.width = "30%";
-    if (index === 6) header.style.width = "15%";
-  });
-
-  clonedTable.querySelectorAll("td").forEach((cell) => {
-    cell.style.border = "1px solid #ccc";
-    cell.style.padding = "8px";
-    cell.style.textAlign = "left";
-    cell.style.wordBreak = "break-word";
-    cell.style.fontSize = "11px";
-  });
-
-  projectOverview.appendChild(clonedTable);
+  // projectOverview.appendChild(clonedTable);
   // Table ends
 
   // Plugins Table
@@ -719,12 +751,9 @@ async function exportToPDF() {
             </tr>
         </thead>
     <tbody>
-        ${
-          wordfenceData?.issues.length > 0
-            ? wordfenceData?.issues?.new
-            : []
-                .map(
-                  (plugin) => `
+        ${wordfenceData?.issues?.new
+          .map(
+            (plugin) => `
           <tr>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
               plugin?.data?.Title
@@ -746,9 +775,8 @@ async function exportToPDF() {
             }</td>
           </tr>
         `
-                )
-                .join("")
-        }
+          )
+          .join("")}
       </tbody>
     </table>
   `;
@@ -1060,6 +1088,7 @@ async function exportToPDF() {
   wrapperElement.appendChild(projectSummary);
   wrapperElement.appendChild(statusSummary);
   wrapperElement.appendChild(projectOverview);
+  wrapperElement.appendChild(logsTableContainer);
   wrapperElement.appendChild(installedPluginsHeader);
   wrapperElement.appendChild(pluginsTableContainer);
   wrapperElement.appendChild(wordfence);

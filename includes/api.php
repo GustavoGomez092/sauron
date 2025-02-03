@@ -13,13 +13,14 @@ class Struck_API
     global $wpdb;
     $table_name = $wpdb->prefix . 'struck_logs';
     // $total_entries = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
-    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id LIMIT $limit OFFSET $offset");
+    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC LIMIT $limit OFFSET $offset");
+
 
     foreach ($logs as &$value) {
 
       $user = get_userdata($value->user_id);
       $user_email = $user->data->user_email;
-      $role = $user->data->user_nicename;
+      $role = $user->roles[0];
       $value->email = $user_email;
       $value->role = $role;
     }
@@ -53,7 +54,7 @@ class Struck_API
     foreach ($logs as &$value) {
       $user = get_userdata($value->user_id);
       $user_email = $user->data->user_email;
-      $role = $user->data->user_nicename;
+      $role = $user->roles[0];
       $value->email = $user_email;
       $value->role = $role;
     }
