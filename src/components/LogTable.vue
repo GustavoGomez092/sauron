@@ -124,13 +124,7 @@
                 <td class="p-4 border-b border-slate-200">
                   <div class="w-max">
                     <div
-                      :class="{
-                        'bg-red-50': user.action_type === 'comment_deleted',
-                        'bg-yellow-50': user.action_type === 'comment_trashed',
-                        'bg-green-500/20':
-                          user.action_type !== 'comment_deleted' &&
-                          user.action_type !== 'comment_trashed',
-                      }"
+                      :class="renderColor(user.action_type)"
                       class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
                     >
                       <span>{{ translateAction(user.action_type) }}</span>
@@ -302,6 +296,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import useActions from "../../scripts/useActions";
 import html2pdf from "html2pdf.js";
 import axios from "axios";
 
@@ -317,6 +312,7 @@ const totalLogs = ref(0);
 const offset = ref(0);
 const limit = ref(10);
 const currentPage = ref(1);
+const { translateAction, renderColor } = useActions();
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -394,51 +390,6 @@ const prevPage = () => {
     currentPage.value -= 1;
     offset.value -= limit.value;
     fetchLogs(offset.value, limit.value);
-  }
-};
-
-const translateAction = (action) => {
-  switch (action) {
-    case "comment_trashed":
-      return "Comment Trashed";
-    case "comment_deleted":
-      return "Comment Deleted";
-    case "post_publish":
-      return "Post Published";
-    case "login":
-      return "Logged In";
-    case "login_failed":
-      return "Login Failed";
-    case "draft_save":
-      return "Draft Saved";
-    case "media_upload":
-      return "Image Uploaded";
-    case "user_create":
-      return "User Created";
-    case "category_update":
-      return "Category Updated";
-    case "post_schedule":
-      return "Post Scheduled";
-    case "theme_activate":
-      return "Theme Activated";
-    case "plugin_install":
-      return "Plugin Installed";
-    case "comment_reply":
-      return "Comment Replied";
-    case "profile_update":
-      return "Profile Updated";
-    case "settings_update":
-      return "Settings Changed";
-    case "menu_edit":
-      return "Menu Edited";
-    case "password_reset":
-      return "Password Reset";
-    case "database_optimized":
-      return "Database Optimized";
-
-    default:
-      return action.toUpperCase();
-      break;
   }
 };
 
@@ -653,13 +604,7 @@ async function exportToPDF() {
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
               <div class="w-max">
                 <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
-                  ${
-                    log?.action_type === "comment_deleted"
-                      ? "bg-red-50 text-red-900"
-                      : log?.action_type === "comment_trashed"
-                      ? "bg-yellow-50 text-yellow-900"
-                      : "bg-green-500/20 text-green-900"
-                  }">
+                  ${renderColor(log?.action_type)}">
                   <span>${translateAction(log?.action_type)}</span>
                 </div>
               </div>
