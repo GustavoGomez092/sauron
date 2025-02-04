@@ -17,7 +17,11 @@ class Struck_API
 
 
     foreach ($logs as &$value) {
-
+      if ($value->user_id == 0) {
+        $value->email = 'no@email.com';
+        $value->role = 'System';
+        continue;
+      }
       $user = get_userdata($value->user_id);
       $user_email = $user->data->user_email;
       $role = $user->roles[0];
