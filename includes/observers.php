@@ -76,8 +76,9 @@ class StruckObserver
       $this->_recordLocalEvent(self::USER_LOGGED_IN['action'], self::USER_LOGGED_IN['description']);
     });
 
-    $auditLog->_addObserver('wp_logout', function () { //User logged out
-      $this->_recordLocalEvent(self::USER_LOGGED_OUT['action'], self::USER_LOGGED_OUT['description']);
+    $auditLog->_addObserver('wp_logout', function ($data) { //User logged out
+      error_log(print_r($data, true));
+      $this->_recordLocalEvent(self::USER_LOGGED_OUT['action'], self::USER_LOGGED_OUT['description'], array('user_id' => $data));
     });
 
     $auditLog->_addObserver('after_password_reset', function ($data) { //User password reset
@@ -265,60 +266,25 @@ class StruckObserver
     }
   }
 
-  protected function _sanitizeUserdata($userdata, $user_id = null)
-  {
-    if ($userdata === null && $user_id !== null) { //May hit this on older WP versions where $userdata wasn't populated by the hook call
-      $userdata = get_user_by('ID', $user_id);
-    } else {
-      return array(
-        'user_id' => 0,
-        'user_login' => 'WordPress',
-        'user_roles' => array(),
-      );
-    }
-
-    $roles = array();
-    if ($userdata instanceof stdClass) {
-      $user = new WP_User($user_id !== null ? $user_id : (isset($userdata->ID) ? $userdata->ID : 0));
-      if ($user->exists()) {
-        $roles = $user->roles;
-      }
-      $userdata = get_object_vars($userdata);
-    } else if ($userdata instanceof WP_User) {
-      $roles = $userdata->roles;
-      $userdata = $userdata->to_array();
-    } else {
-      $user = new WP_User($user_id !== null ? $user_id : (isset($userdata['ID']) ? $userdata['ID'] : 0));
-      if (!$user) {
-        return array(
-          'user_id' => 0,
-          'user_login' => 'WordPress',
-          'user_roles' => array(),
-        );
-      }
-
-      if ($user->exists()) {
-        $roles = $user->roles;
-      }
-    }
-
-    return array(
-      'user_id' => $user_id !== null ? $user_id : (isset($userdata['ID']) ? $userdata['ID'] : 0),
-      'user_login' => isset($userdata['user_login']) ? $userdata['user_login'] : '',
-      'user_roles' => $roles,
-    );
-  }
-
-  private function _recordLocalEvent($type, $message)
+  private function _recordLocalEvent($type, $message, $data = null)
   {
 
-    $user = wp_get_current_user() ? wp_get_current_user() : null;
-    $user_sanitized = $this->_sanitizeUserdata($user);
+    $user = null;
+
+    if ($data) {
+      // if key user_id exists in data, get user by id
+      if (array_key_exists('user_id', $data)) {
+        $user = get_user_by('id', $data['user_id']);
+      }
+    } else {
+      $user = wp_get_current_user();
+    }
+
     $entry = array(
       'action' => $type,
       'action_description' => $message,
-      'user_id' => $user ? $user->ID : 0,
-      'user_name' => $user_sanitized['user_login'],
+      'user_id' => $user->exists() ? $user->ID : 0,
+      'user_name' => $user->exists() ? $user->user_login : 'WordPress',
     );
 
     $this->log_action($entry);
