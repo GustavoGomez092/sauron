@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: struck
+Plugin Name: Struck Logger
 Description: Plugin Designed to track maintenance actions on a website and generate reports
 Version: 0.0.1
 Author: Gustavo Gomez
@@ -21,7 +21,7 @@ class struck
         require('plugin_activation.php');
         require('plugin_options.php');
         require('includes/table_creation.php');
-        require('includes/actions.php');
+        require('includes/observers.php');
         require('includes/endpoints.php');
         add_action('admin_enqueue_scripts', [$this, 'REST_API_DATA_LOCALIZER']);
     }
@@ -37,6 +37,8 @@ class struck
         }
         $_POST['lastissuetime'] = 0;
         $_POST['lastctime'] = 0;
+
+        wordfence::ajax_loadIssues_callback();
         return wordfence::ajax_activityLogUpdate_callback();
     }
 
