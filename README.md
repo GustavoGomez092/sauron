@@ -1,6 +1,6 @@
-# struck WordPress Plugin
+# Struck Logger WordPress Plugin (Formerly Sauron)
 
-struck is a WordPress plugin designed to log user actions and generate comprehensive reports, enhancing your website's security and user activity monitoring.
+Struck Logger is a WordPress plugin designed to log user actions and generate comprehensive reports, enhancing your website's security and user activity monitoring.
 
 ## Features
 
@@ -92,8 +92,6 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-This plugin is inspired by the vigilance of struck, the all-seeing antagonist from J.R.R. Tolkien's Middle-earth legendarium.
+This plugin is inspired by the vigilance of Sauron, the all-seeing antagonist from J.R.R. Tolkien's Middle-earth legendarium.
 
-Just as struck kept a watchful eye over Middle-earth, this plugin helps you monitor user activities on your WordPress site.
-
-For more information about struck, you can refer to the [Wikipedia article](https://en.wikipedia.org/wiki/struck).
+Just as Sauron kept a watchful eye over Middle-earth, this plugin helps you monitor user activities on your WordPress site.
