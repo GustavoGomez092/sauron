@@ -77,7 +77,6 @@ class StruckObserver
     });
 
     $auditLog->_addObserver('wp_logout', function ($data) { //User logged out
-      error_log(print_r($data, true));
       $this->_recordLocalEvent(self::USER_LOGGED_OUT['action'], self::USER_LOGGED_OUT['description'], array('user_id' => $data));
     });
 
