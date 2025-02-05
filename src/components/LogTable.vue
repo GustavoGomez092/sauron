@@ -124,7 +124,13 @@
                 <td class="p-4 border-b border-slate-200">
                   <div class="w-max">
                     <div
-                      :class="renderColor(user.action_type)"
+                      :class="
+                        renderColor(user.action_type) === 'green'
+                          ? 'bg-green-500/20 text-green-900'
+                          : renderColor(user.action_type) === 'red'
+                          ? 'bg-red-50 text-red-900'
+                          : 'bg-yellow-50 text-yellow-900'
+                      "
                       class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
                     >
                       <span>{{ translateAction(user.action_type) }}</span>
@@ -604,7 +610,13 @@ async function exportToPDF() {
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
               <div class="w-max">
                 <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
-                  ${renderColor(log?.action_type)}">
+                  ${
+                    renderColor(log?.action_type) === "green"
+                      ? "bg-green-500/20 text-green-900"
+                      : renderColor(log?.action_type) === "red"
+                      ? "bg-red-50 text-red-900"
+                      : "bg-yellow-50 text-yellow-900"
+                  }">
                   <span>${translateAction(log?.action_type)}</span>
                 </div>
               </div>
@@ -1056,7 +1068,11 @@ async function exportToPDF() {
   // Save
   const options = {
     margin: [10, 10],
-    filename: `Website Status Report ${new Date().toISOString()}.pdf`,
+    filename: `${window.location.hostname
+      .replaceAll("/", "")
+      .replaceAll("https:", "")} Status Report ${new Date()
+      .toLocaleDateString()
+      .replace(/\//g, "-")}.pdf`,
     html2canvas: { scale: 2 },
     pageBreak: {
       mode: ["avoid-all"],
@@ -1064,7 +1080,7 @@ async function exportToPDF() {
     },
     jsPDF: {
       unit: "px",
-      format: [width, height + 500],
+      format: [width, height + height * 0.35],
       orientation: "portrait",
     },
   };

@@ -70,6 +70,9 @@ export default function useActions() {
   };
 
   const renderColor = (action) => {
+    if (!action) {
+      return "yellow";
+    }
     if (
       action.includes("created") ||
       action.includes("registration") ||
@@ -79,7 +82,7 @@ export default function useActions() {
       action.includes("installed") ||
       action.includes("activated")
     ) {
-      return "bg-green-500/20 text-green-900";
+      return "green";
     } else if (
       action.includes("deleted") ||
       action.includes("trashed") ||
@@ -87,9 +90,9 @@ export default function useActions() {
       action.includes("removed") ||
       action.includes("deactivated")
     ) {
-      return "bg-red-50 text-red-900";
+      return "red";
     } else {
-      return "bg-yellow-50 text-yellow-900";
+      return "yellow";
     }
   };
   return { translateAction, renderColor };
