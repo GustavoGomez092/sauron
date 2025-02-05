@@ -1031,7 +1031,7 @@ async function exportToPDF() {
   wrapperElement.appendChild(header);
   wrapperElement.appendChild(title);
   wrapperElement.appendChild(projectSummary);
-  if (struckLogs.summary) {
+  if (struckLogs.value.summary) {
     wrapperElement.appendChild(statusSummary);
   }
   wrapperElement.appendChild(projectOverview);
@@ -1042,7 +1042,7 @@ async function exportToPDF() {
   wrapperElement.appendChild(wordfenceTableContainer);
   wrapperElement.appendChild(pageSpeedDataHeading);
   wrapperElement.appendChild(pageSpeedData);
-  if (struckLogs.recommendations) {
+  if (struckLogs.value.recommendations) {
     wrapperElement.appendChild(recommendations);
   }
   wrapperElement.appendChild(footer);
