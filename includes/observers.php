@@ -193,7 +193,8 @@ class StruckObserver
       if (is_array($hook_extra) && isset($hook_extra['type']) && $hook_extra['type'] == 'core' && isset($hook_extra['action']) && $hook_extra['action'] == 'update') {
 
         global $wp_version;
-        require(ABSPATH . 'wp-includes/version.php'); /** @var string $wp_version */
+        require(ABSPATH . 'wp-includes/version.php');
+        /** @var string $wp_version */
         $message = self::SITE_UPDATE_CORE['description'] . ' To version ' . $wp_version . '.';
         $this->_recordLocalEvent(self::SITE_UPDATE_CORE['action'], $message);
       }
@@ -240,7 +241,6 @@ class StruckObserver
       $message = self::SITE_CONTENT_DELETED['description'] . ' Post type: ' . $post->post_type . '. Page title: ' . $post->post_title . '. Page ID: ' . $post_id;
       $this->_recordLocalEvent(self::SITE_CONTENT_DELETED['action'], $message);
     });
-
   }
 
   protected function _addObserver($hooks, $closure, $type = 'action')
@@ -311,9 +311,7 @@ class StruckObserver
         )
       );
     }
-
   }
-
 }
 
 new StruckObserver();

@@ -117,7 +117,9 @@
                 <td class="p-4 border-b border-slate-200">
                   {{ user.user_name }}
                 </td>
-                <td class="p-4 border-b border-slate-200">{{ user.email }}</td>
+                <td class="p-4 border-b border-slate-200">
+                  {{ user.email.includes("no@email.com") ? "-" : user.email }}
+                </td>
                 <td class="p-4 border-b border-slate-200">
                   {{ user.role }}
                 </td>
@@ -713,13 +715,40 @@ async function exportToPDF() {
             (plugin) => `
           <tr>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
-              plugin?.data?.Title
+              plugin?.type.includes("wfPluginUpgrade") ||
+              plugin?.type.includes("wfPluginVulnerable")
+                ? plugin?.data?.Title
+                : plugin?.type.includes("wfThemeUpgrade")
+                ? plugin?.data?.Name
+                : "-"
             }</td>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
-              plugin?.data?.Version
+              plugin?.type.includes("wfPluginUpgrade") ||
+              plugin?.type.includes("wfPluginVulnerable")
+                ? plugin?.data?.Version
+                : plugin?.type.includes("wfThemeUpgrade")
+                ? plugin?.data?.version
+                : plugin?.type.includes("wfUpgrade")
+                ? plugin?.data?.currentVersion
+                : "-"
             }</td>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
-              plugin?.data?.updateAvailable ? "Yes" : "No"
+              plugin?.type.includes("wfPluginUpgrade") ||
+              plugin?.type.includes("wfPluginVulnerable")
+                ? plugin?.data?.updateAvailable
+                  ? "Yes"
+                  : "No"
+                : plugin?.type.includes("wfThemeUpgrade")
+                ? parseFloat(plugin?.data?.newVersion) >
+                  parseFloat(plugin?.data?.version)
+                  ? "Yes"
+                  : "No"
+                : plugin?.type.includes("wfUpgrade")
+                ? parseFloat(plugin?.data?.newVersion) >
+                  parseFloat(plugin?.data?.currentVersion)
+                  ? "Yes"
+                  : "No"
+                : "-"
             }</td>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
               plugin?.data?.newVersion ? plugin?.data?.newVersion : "-"
