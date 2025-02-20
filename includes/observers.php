@@ -1,5 +1,20 @@
 <?php
 
+add_filter('upgrader_pre_install', function ($true, $hook_extra) {
+  if (isset($hook_extra['plugin'])) {
+    // Get plugin path
+    $pluginPath = $hook_extra['plugin'];
+
+    // Get the plugin version
+    $pluginData = get_plugin_data(WP_PLUGIN_DIR . '/' . $pluginPath);
+    $previousVersion = $pluginData['Version'];
+
+    // Store previous version in a transient
+    set_transient('plugin_version_before_update_' . $pluginPath, $previousVersion, 60 * 60); // ten minutes expiration
+  }
+  return $true;
+}, 10, 3);
+
 class StruckObserver
 {
   const WF_SCAN_STARTED = array('action' => 'antivirus_scan', 'description' => 'Ran anti-virus scan on the site.');
@@ -131,6 +146,8 @@ class StruckObserver
 
     $auditLog->_addObserver('upgrader_process_complete', function ($hook_extra, $response) { //Plugin/theme installed/updated
 
+      error_log(print_r($hook_extra, true));
+      error_log(print_r($response, true));
       if ($response) {
         if (isset($response['action']) && isset($response['type'])) { //Install or update
           if ($response['action'] == 'install') {
@@ -143,10 +160,41 @@ class StruckObserver
             }
           } else if ($response['action'] == 'update') {
             if ($response['type'] == 'plugin') {
-              $message = self::SITE_UPDATE_PLUGIN['description'] . ' Plugin name: ' . $hook_extra->new_plugin_data['Name'] . '. from version: ' . $hook_extra->skin->plugin_info['Version'] . ' to version: ' . $hook_extra->new_plugin_data['Version'];
-              $this->_recordLocalEvent(self::SITE_UPDATE_PLUGIN['action'], $message);
+              // Loop through all updated plugins
+              foreach ($response['plugins'] as $pluginPath) {
+                $pluginName = explode('/', $pluginPath)[0];
+
+                // Get the current version (new version after update)
+                $newPluginData = get_plugin_data(WP_PLUGIN_DIR . '/' . $pluginPath);
+                $newVersion = $newPluginData['Version'];
+
+                // Get the previous version, stored before the update (use transient or other storage)
+                $previousVersion = get_transient('plugin_version_before_update_' . $pluginPath);
+
+                // If the previous version is available, log the update
+                if ($previousVersion) {
+                  $message = self::SITE_UPDATE_PLUGIN['description']
+                    . ' Plugin name: ' . $pluginName
+                    . '. From version: ' . $previousVersion
+                    . ' to version: ' . $newVersion;
+
+                  // Log the update event
+                  $this->_recordLocalEvent(self::SITE_UPDATE_PLUGIN['action'], $message);
+                } else {
+                  // In case we couldn't retrieve the previous version, log only the new version
+                  $message = self::SITE_UPDATE_PLUGIN['description']
+                    . ' Plugin name: ' . $pluginName
+                    . '. New version: ' . $newVersion;
+
+                  // Log the update event
+                  $this->_recordLocalEvent(self::SITE_UPDATE_PLUGIN['action'], $message);
+                }
+              }
             } else if ($response['type'] == 'theme') {
-              $message = self::SITE_UPDATE_THEME['description'] . ' Theme name: ' . $hook_extra->skin->theme_info['Name'] . '. from version: ' . $hook_extra->skin->theme_info['Version'] . ' to version: ' . $hook_extra->new_theme_data['Version'];
+              $message = self::SITE_UPDATE_THEME['description']
+                . ' Theme name: ' . $hook_extra->skin->theme_info['Name']
+                . '. From version: ' . $hook_extra->skin->theme_info['Version']
+                . ' to version: ' . $hook_extra->new_theme_data['Version'];
               $this->_recordLocalEvent(self::SITE_UPDATE_THEME['action'], $message);
             }
           }
