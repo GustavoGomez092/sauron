@@ -205,7 +205,7 @@ class struck
         if (file_exists(dirname(__FILE__) . "/dist/vue-wp.js")) {
             $handle .= 'prod';
             wp_enqueue_script($handle, plugins_url("/dist/vue-wp.js", __FILE__), ['wp-element'], '0.1', true);
-            wp_enqueue_style($handle, plugins_url("/dist/style.css", __FILE__), false, '0.1', 'all');
+            wp_enqueue_style($handle, plugins_url("/dist/vue-wp.css", __FILE__), false, '0.1', 'all');
         } else {
             $handle .= 'dev';
             wp_enqueue_script($handle, 'http://localhost:5173/src/main.js', ['wp-element'], '0.1', true);
