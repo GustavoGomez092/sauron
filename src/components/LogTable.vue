@@ -3,153 +3,171 @@
     <div
       class="relative flex flex-col w-full h-full text-slate-700 bg-white shadow-md rounded-xl"
     >
-      <div class="relative mx-4 mt-4">
-        <div class="flex items-center justify-between">
-          <div class="flex flex-row gap-7 items-center">
-            <div>
-              <h3 class="text-lg font-semibold text-slate-800">
-                Site maintenance report
-              </h3>
-              <p class="text-slate-500">Review each log or download the file</p>
-            </div>
+      <template
+        v-if="
+          settingsData.color_skin &&
+          settingsData.company_logo &&
+          settingsData.address_information &&
+          settingsData.assigned_developer &&
+          settingsData.development_director &&
+          settingsData.contact_email
+        "
+      >
+        <div class="relative mx-4 mt-4">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-row gap-7 items-center">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-800">
+                  Site maintenance report
+                </h3>
+                <p class="text-slate-500">
+                  Review each log or download the file
+                </p>
+              </div>
 
-            <div class="flex flex-row gap-4 items-center">
-              <button
-                @click="prevPage"
-                :disabled="offset === 0"
-                class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
-              >
-                Previous
-              </button>
-              <button
-                @click="nextPage"
-                :disabled="offset + limit >= totalLogs"
-                class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
-              >
-                Next
-              </button>
+              <div class="flex flex-row gap-4 items-center">
+                <button
+                  @click="prevPage"
+                  :disabled="offset === 0"
+                  class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+                >
+                  Previous
+                </button>
+                <button
+                  @click="nextPage"
+                  :disabled="offset + limit >= totalLogs"
+                  class="p-3 m-0 leading-none border border-black rounded-xl transition-colors hover:bg-black hover:text-white disabled:bg-gray-100 disabled:text-black"
+                >
+                  Next
+                </button>
 
-              <p class="m-0" v-if="totalLogs">
-                Page {{ currentPage }} of {{ Math.ceil(totalLogs / 10) }}
-              </p>
+                <p class="m-0" v-if="totalLogs">
+                  Page {{ currentPage }} of {{ Math.ceil(totalLogs / 10) }}
+                </p>
+              </div>
             </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="Search logs..."
-              class="px-3 !min-h-[36px] py-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
-            <button
-              @click="openstruckLogsModal()"
-              class="px-4 py-2 border min-h-[35px] border-green-900 text-green-900 rounded hover:text-green-700 hover:border-green-700 focus:outline-none"
-            >
-              Export
-            </button>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Search logs..."
+                class="px-3 !min-h-[36px] py-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+              <button
+                @click="openstruckLogsModal()"
+                class="px-4 py-2 border min-h-[35px] border-green-900 text-green-900 rounded hover:text-green-700 hover:border-green-700 focus:outline-none"
+              >
+                Export
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Table -->
-      <div class="p-0 overflow-scroll">
-        <table
-          id="export-table"
-          class="w-full mt-4 text-left table-auto border-collapse"
-          style="table-layout: fixed"
-        >
-          <thead>
-            <tr>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
-                Name
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
-                Email
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
-                Role
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
-                Action
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
-                Action Taken
-              </th>
-              <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
-                Action Time
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Skeleton Rows -->
-            <template v-if="isSearching">
-              <tr v-for="i in 10" :key="i" class="animate-pulse">
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="h-4 bg-slate-200 rounded"></div>
-                </td>
+        <!-- Table -->
+        <div class="p-0 overflow-scroll">
+          <table
+            id="export-table"
+            class="w-full mt-4 text-left table-auto border-collapse"
+            style="table-layout: fixed"
+          >
+            <thead>
+              <tr>
+                <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
+                  Name
+                </th>
+                <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
+                  Email
+                </th>
+                <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
+                  Role
+                </th>
+                <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
+                  Action
+                </th>
+                <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
+                  Action Taken
+                </th>
+                <th class="p-4 border-y border-slate-200 bg-slate-50 w-1/6">
+                  Action Time
+                </th>
               </tr>
-            </template>
-            <!-- Data Rows -->
-            <template v-else>
-              <tr
-                v-for="user in filteredLogs"
-                :key="user.user_id"
-                class="hover:bg-slate-50"
-              >
-                <td class="p-4 border-b border-slate-200">
-                  {{ user.user_name }}
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  {{ user.email.includes("no@email.com") ? "-" : user.email }}
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  {{ user.role }}
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  <div class="w-max">
-                    <div
-                      :class="
-                        renderColor(user.action_type) === 'green'
-                          ? 'bg-green-500/20 text-green-900'
-                          : renderColor(user.action_type) === 'red'
-                          ? 'bg-red-50 text-red-900'
-                          : 'bg-yellow-50 text-yellow-900'
-                      "
-                      class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
-                    >
-                      <span>{{ translateAction(user.action_type) }}</span>
+            </thead>
+            <tbody>
+              <!-- Skeleton Rows -->
+              <template v-if="isSearching">
+                <tr v-for="i in 10" :key="i" class="animate-pulse">
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="h-4 bg-slate-200 rounded"></div>
+                  </td>
+                </tr>
+              </template>
+              <!-- Data Rows -->
+              <template v-else>
+                <tr
+                  v-for="user in filteredLogs"
+                  :key="user.user_id"
+                  class="hover:bg-slate-50"
+                >
+                  <td class="p-4 border-b border-slate-200">
+                    {{ user.user_name }}
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    {{ user.email.includes("no@email.com") ? "-" : user.email }}
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    {{ user.role }}
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    <div class="w-max">
+                      <div
+                        :class="
+                          renderColor(user.action_type) === 'green'
+                            ? 'bg-green-500/20 text-green-900'
+                            : renderColor(user.action_type) === 'red'
+                            ? 'bg-red-50 text-red-900'
+                            : 'bg-yellow-50 text-yellow-900'
+                        "
+                        class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
+                      >
+                        <span>{{ translateAction(user.action_type) }}</span>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  {{ user.action_taken }}
-                </td>
-                <td class="p-4 border-b border-slate-200">
-                  {{ user.action_time }}
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </div>
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    {{ user.action_taken }}
+                  </td>
+                  <td class="p-4 border-b border-slate-200">
+                    {{ user.action_time }}
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </template>
+      <template v-else>
+        <div class="relative mx-auto text-2xl p-6">
+          <h1>Please go to Settings and fill the required information</h1>
+        </div>
+      </template>
     </div>
   </div>
 

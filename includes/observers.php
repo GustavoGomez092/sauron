@@ -146,8 +146,6 @@ class StruckObserver
 
     $auditLog->_addObserver('upgrader_process_complete', function ($hook_extra, $response) { //Plugin/theme installed/updated
 
-      error_log(print_r($hook_extra, true));
-      error_log(print_r($response, true));
       if ($response) {
         if (isset($response['action']) && isset($response['type'])) { //Install or update
           if ($response['action'] == 'install') {
@@ -161,6 +159,12 @@ class StruckObserver
           } else if ($response['action'] == 'update') {
             if ($response['type'] == 'plugin') {
               // Loop through all updated plugins
+
+              if (!isset($response['plugins']) || !is_array($response['plugins'])) {
+                error_log('Error: Undefined or invalid "plugins" key in response array');
+                return; // Stop execution if plugins is not set or is not an array
+              }
+
               foreach ($response['plugins'] as $pluginPath) {
                 $pluginName = explode('/', $pluginPath)[0];
 
