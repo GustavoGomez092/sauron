@@ -1437,29 +1437,35 @@ async function exportToPDF() {
     <h3 style="border-bottom: 1px solid ${
       settingsData.color_skin
     }; margin-bottom: 10px; padding-bottom: 3px">Project Information</h3>
-    <table style="width: 100%; border-collapse: collapse;">
-      <tr>
-        <td><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</td>
-        <td><strong>Technical Producer:</strong> ${
-          settingsData.assigned_manager
-        }</td>
-        <td>
-        <strong>Contact Email:</strong> <a href="mailto:${
-          settingsData.assigned_manager_email
-        }">${settingsData.assigned_manager_email}</a>
-      </td>
-        <td>
-            <strong>Development Director:</strong> ${
-              settingsData.development_director
-            }
-        </td>
-        <td>
-            <strong>Contact Email:</strong> <a href="mailto:${
-              settingsData.contact_email
-            }">${settingsData.contact_email}</a>
-        </td>
-      </tr>
-    </table>
+<table style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td style="vertical-align: top;">
+      <strong>Development Director:</strong> ${
+        settingsData.development_director
+      }
+      <br />
+      <strong>Contact Email:</strong> 
+      <a href="mailto:${settingsData.contact_email}">
+        ${settingsData.contact_email}
+      </a>
+    </td>
+
+    <td style="vertical-align: top;">
+      <strong>Technical Producer:</strong> ${settingsData.assigned_manager}
+      <br />
+      <strong>Contact Email:</strong> 
+      <a href="mailto:${settingsData.assigned_manager_email}">
+        ${settingsData.assigned_manager_email}
+      </a>
+    </td>
+
+    <td style="vertical-align: top;">
+      <strong>Report Date:</strong> ${new Date().toLocaleDateString()}
+    </td>
+  </tr>
+</table>
+
+
   `;
 
   // Summary
@@ -1495,7 +1501,7 @@ async function exportToPDF() {
         <th style="border: 1px solid #ccc; padding: 8px;">Role</th>
         <th style="border: 1px solid #ccc; padding: 8px;">Action</th>
         <th style="border: 1px solid #ccc; padding: 8px;">Action Taken</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Action Time</th>
+        <th style="border: 1px solid #ccc; padding: 8px; width: 120px;">Action Time</th>
       </tr>
     </thead>
     <tbody>
@@ -1590,17 +1596,22 @@ async function exportToPDF() {
   const wordfence = document.createElement("div");
   wordfence.style.marginTop = "20px";
   wordfence.style.paddingTop = "20px";
-  wordfence.innerHTML = `
+  wordfence.innerHTML = `${
+    wordfenceData?.issues?.new.length > 0
+      ? `
     <h3 style="border-bottom: 1px solid ${backgroundColor}; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
     <p><b>*${
       wordfenceData?.lastMessage
         ? wordfenceData?.lastMessage
         : "No scan has been run lately"
-    }</b></p>
-  `;
+    }</b></p>`
+      : ""
+  }`;
 
   const wordfenceTableContainer = document.createElement("div");
-  wordfenceTableContainer.innerHTML = `
+  wordfenceTableContainer.innerHTML = `${
+    wordfenceData?.issues?.new.length > 0
+      ? `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
         <thead style="background-color: ${backgroundColor}; color: ${textColor}">
             <tr>
@@ -1668,7 +1679,9 @@ async function exportToPDF() {
           .join("")}
       </tbody>
     </table>
-  `;
+  `
+      : ""
+  }`;
   // }
 
   //   Page Speed Heading
