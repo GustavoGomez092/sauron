@@ -1427,7 +1427,7 @@ async function exportToPDF() {
   title.style.textAlign = "left";
   title.style.fontSize = "18px";
   title.style.marginBottom = "20px";
-  title.style.borderBottom = "5px solid ${settingsData.color_skin}";
+  title.style.borderBottom = `5px solid ${settingsData.color_skin}`;
 
   // Information
   const projectSummary = document.createElement("div");
