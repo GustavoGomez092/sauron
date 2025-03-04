@@ -5,8 +5,9 @@
     >
       <template
         v-if="
+          settingsData &&
           settingsData.color_skin &&
-          settingsData.company_logo &&
+          settingsData.company_logo?.url &&
           settingsData.address_information &&
           settingsData.assigned_manager &&
           settingsData.development_director &&
@@ -1343,6 +1344,7 @@ function closestruckLogsModal() {
 }
 
 function wc_hex_is_light(color) {
+  if (!color) return;
   const hex = color.replace("#", "");
   const c_r = parseInt(hex.substring(0, 2), 16);
   const c_g = parseInt(hex.substring(2, 4), 16);
@@ -1597,7 +1599,9 @@ async function exportToPDF() {
   wordfence.style.marginTop = "20px";
   wordfence.style.paddingTop = "20px";
   wordfence.innerHTML = `${
-    wordfenceData?.issues?.new.length > 0
+    wordfenceData?.issues !== 0 &&
+    wordfenceData?.issues?.new &&
+    wordfenceData?.issues?.new?.length > 0
       ? `
     <h3 style="border-bottom: 1px solid ${backgroundColor}; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
     <p><b>*${
@@ -1610,7 +1614,9 @@ async function exportToPDF() {
 
   const wordfenceTableContainer = document.createElement("div");
   wordfenceTableContainer.innerHTML = `${
-    wordfenceData?.issues?.new.length > 0
+    wordfenceData?.issues !== 0 &&
+    wordfenceData?.issues?.new &&
+    wordfenceData?.issues?.new?.length > 0
       ? `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
         <thead style="background-color: ${backgroundColor}; color: ${textColor}">
