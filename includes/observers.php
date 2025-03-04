@@ -87,8 +87,8 @@ class StruckObserver
       $this->_recordLocalEvent(self::USER_UPDATED['action'], $message);
     });
 
-    $auditLog->_addObserver('wp_login', function () { //User logged in
-      $this->_recordLocalEvent(self::USER_LOGGED_IN['action'], self::USER_LOGGED_IN['description']);
+    $auditLog->_addObserver('wp_login', function ($data, $data1) { //User logged in
+      $this->_recordLocalEvent(self::USER_LOGGED_IN['action'], self::USER_LOGGED_IN['description'], array('user_id' => $data1->ID));
     });
 
     $auditLog->_addObserver('wp_logout', function ($data) { //User logged out
