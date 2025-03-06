@@ -63,15 +63,6 @@
                   Export
                 </button>
               </div>
-
-              <div class="flex items-center gap-2">
-                <p>Include Site Page Speed and metrics in the report?</p>
-                <button
-                  @click="toggleState"
-                  class="toggle-button"
-                  :class="{ on: isOn, off: !isOn }"
-                ></button>
-              </div>
             </div>
           </div>
         </div>
@@ -1173,6 +1164,14 @@
       </div>
 
       <div class="mt-6 flex flex-col gap-6 justify-end">
+        <div class="flex items-center gap-2">
+          <p>Include Site Page Speed and metrics in the report?</p>
+          <button
+            @click="toggleState"
+            class="toggle-button"
+            :class="{ on: isOn, off: !isOn }"
+          ></button>
+        </div>
         <button
           @click="exportToPDF"
           :disabled="loading"
@@ -1200,7 +1199,7 @@
           {{ loading ? "Exporting..." : "Export to PDF" }}
         </button>
         <div
-          v-if="loading"
+          v-if="loading && isOn"
           class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50"
           role="alert"
         >
@@ -1384,7 +1383,12 @@ function scoreColor(score) {
   }
 }
 async function exportToPDF() {
-  await getPagespeedData();
+  if (isOn.value) {
+    await getPagespeedData();
+  } else {
+    loading.value = true;
+  }
+
   await fetchLogs(
     0,
     10,
