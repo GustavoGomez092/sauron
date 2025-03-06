@@ -48,19 +48,30 @@
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search logs..."
-                class="px-3 !min-h-[36px] py-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                @click="openstruckLogsModal()"
-                class="px-4 py-2 border min-h-[35px] border-green-900 text-green-900 rounded hover:text-green-700 hover:border-green-700 focus:outline-none"
-              >
-                Export
-              </button>
+            <div class="flex flex-col items-center justify-end gap-2">
+              <div class="flex items-center gap-2 self-end">
+                <input
+                  type="text"
+                  v-model="searchQuery"
+                  placeholder="Search logs..."
+                  class="px-3 !min-h-[36px] py-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button
+                  @click="openstruckLogsModal()"
+                  class="px-4 py-2 border min-h-[35px] border-green-900 text-green-900 rounded hover:text-green-700 hover:border-green-700 focus:outline-none"
+                >
+                  Export
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <p>Include Site Page Speed and metrics in the report?</p>
+                <button
+                  @click="toggleState"
+                  class="toggle-button"
+                  :class="{ on: isOn, off: !isOn }"
+                ></button>
+              </div>
             </div>
           </div>
         </div>
@@ -1219,6 +1230,7 @@ const totalLogs = ref(0);
 const offset = ref(0);
 const limit = ref(10);
 const currentPage = ref(1);
+const isOn = ref(true);
 const { translateAction, renderColor } = useActions();
 
 const api = axios.create({
@@ -1235,6 +1247,10 @@ const getPagespeedData = async () => {
   loading.value = true;
   const response = await api.get("pagespeed");
   window.struckData.page_speed_data = response.data;
+};
+
+const toggleState = () => {
+  isOn.value = !isOn.value;
 };
 
 const fetchUsers = async () => {
@@ -2003,8 +2019,12 @@ async function exportToPDF() {
   wrapperElement.appendChild(pluginsTableContainer);
   wrapperElement.appendChild(wordfence);
   wrapperElement.appendChild(wordfenceTableContainer);
-  wrapperElement.appendChild(pageSpeedDataHeading);
-  wrapperElement.appendChild(pageSpeedData);
+
+  if (isOn.value == true) {
+    wrapperElement.appendChild(pageSpeedDataHeading);
+    wrapperElement.appendChild(pageSpeedData);
+  }
+
   if (struckLogs.value.recommendations) {
     wrapperElement.appendChild(recommendations);
   }
@@ -2056,6 +2076,38 @@ onMounted(() => {
   }
   50% {
     opacity: 0.5;
+  }
+}
+
+.toggle-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:after {
+    @apply absolute bg-white rounded-full shadow-md h-[calc(100%-4px)] w-[calc(50%-0px)] top-[2px] right-[2px] transition-transform duration-300 ease-in-out;
+    content: "";
+  }
+
+  &.on {
+    background-color: #4caf50; /* Green */
+    color: white;
+  }
+  &.off {
+    background-color: #f44336; /* Red */
+    color: white;
+
+    &:after {
+      @apply transform -translate-x-[calc(100%_-_4px)];
+    }
+  }
+
+  &:hover {
+    opacity: 0.8;
   }
 }
 
