@@ -2,7 +2,7 @@
 /*
 Plugin Name: Struck Logger
 Description: Plugin Designed to track maintenance actions on a website and generate reports
-Version: 0.0.11
+Version: 0.0.15
 Author: Gustavo Gomez
 Author URI: https://github.com/GustavoGomez092
 */
@@ -200,15 +200,15 @@ class struck
         $handle = 'struck-plugin-';
 
         add_filter('script_loader_tag', [$this, 'add_type_attribute_front'], 10, 3);
-
+        $mod_ver = is_dir(plugins_url("/dist/vue-wp.js", __FILE__)) ? date('YmdHi', filemtime(plugins_url("/dist/vue-wp.js", __FILE__))) : date("YmdHms");
         // enqueue development or production Vue code
         if (file_exists(dirname(__FILE__) . "/dist/vue-wp.js")) {
             $handle .= 'prod';
-            wp_enqueue_script($handle, plugins_url("/dist/vue-wp.js", __FILE__), ['wp-element'], '0.1', true);
-            wp_enqueue_style($handle, plugins_url("/dist/vue-wp.css", __FILE__), false, '0.1', 'all');
+            wp_enqueue_script($handle, plugins_url("/dist/vue-wp.js", __FILE__), ['wp-element'], $mod_ver, true);
+            wp_enqueue_style($handle, plugins_url("/dist/vue-wp.css", __FILE__), false, $mod_ver, 'all');
         } else {
             $handle .= 'dev';
-            wp_enqueue_script($handle, 'http://localhost:5173/src/main.js', ['wp-element'], '0.1', true);
+            wp_enqueue_script($handle, 'http://localhost:5173/src/main.js', ['wp-element'], $mod_ver, true);
         }
         return "<div id='struck' class='struck'></div>";
     }

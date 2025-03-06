@@ -1722,7 +1722,9 @@ async function exportToPDF() {
   const pageSpeedData = document.createElement("div");
   pageSpeedData.style.marginBottom = "20px";
   pageSpeedData.style.paddingTop = "20px";
-  pageSpeedData.innerHTML = `
+  pageSpeedData.innerHTML = !isOn.value
+    ? ""
+    : `
         <style>
             @property --percentage {
             syntax: "<integer>";
@@ -1925,8 +1927,8 @@ async function exportToPDF() {
                         a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
                     <div class="counter" style="--counter-end:${Math.round(
-                      window.struckData?.page_speed_data.lighthouseResult
-                        .audits["first-contentful-paint"].score * 100
+                      window.struckData?.page_speed_data?.lighthouseResult
+                        ?.audits["first-contentful-paint"].score * 100
                     )};"></div>
                     </div>
                     <div class="chart-info">
@@ -1935,7 +1937,7 @@ async function exportToPDF() {
                     </div>
                 </div>
                 <div class="time-breakdown-chart ${scoreColor(
-                  window.struckData?.page_speed_data.lighthouseResult.audits[
+                  window.struckData?.page_speed_data?.lighthouseResult.audits[
                     "first-contentful-paint"
                   ].score * 100
                 )}">
@@ -2024,7 +2026,7 @@ async function exportToPDF() {
   wrapperElement.appendChild(wordfence);
   wrapperElement.appendChild(wordfenceTableContainer);
 
-  if (isOn.value == true) {
+  if (isOn.value) {
     wrapperElement.appendChild(pageSpeedDataHeading);
     wrapperElement.appendChild(pageSpeedData);
   }
