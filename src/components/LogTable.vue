@@ -9,10 +9,7 @@
           settingsData.color_skin &&
           settingsData.company_logo?.url &&
           settingsData.address_information &&
-          settingsData.assigned_manager &&
-          settingsData.development_director &&
-          settingsData.contact_email &&
-          settingsData.assigned_manager_email
+          settingsData.contact_information
         "
       >
         <div class="relative mx-4 mt-4">
@@ -1172,6 +1169,14 @@
             :class="{ on: isOn, off: !isOn }"
           ></button>
         </div>
+        <div class="flex items-center gap-2">
+          <p>Include Email in the Logs Table?</p>
+          <button
+            @click="toggleEmailState"
+            class="toggle-button"
+            :class="{ on: isEmailOn, off: !isEmailOn }"
+          ></button>
+        </div>
         <button
           @click="exportToPDF"
           :disabled="loading"
@@ -1230,6 +1235,7 @@ const offset = ref(0);
 const limit = ref(10);
 const currentPage = ref(1);
 const isOn = ref(true);
+const isEmailOn = ref(false);
 const { translateAction, renderColor } = useActions();
 
 const api = axios.create({
@@ -1250,6 +1256,10 @@ const getPagespeedData = async () => {
 
 const toggleState = () => {
   isOn.value = !isOn.value;
+};
+
+const toggleEmailState = () => {
+  isEmailOn.value = !isEmailOn.value;
 };
 
 const fetchUsers = async () => {
@@ -1414,32 +1424,33 @@ async function exportToPDF() {
 
   const companyInfo = document.createElement("div");
   companyInfo.innerHTML = `
-     <div style="
-      position: relative;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      font-size: 10px;
-      background-color: ${settingsData.color_skin};
-      text-align: center;
-      padding: 0px;
-    ">
-        <table style="width: 100%; border-collapse: collapse;" cellpadding="20">
-            <tr>
-                <td>
-                    <div style="color: ${textColor} !important; z-index: 1; text-align: left">
-                        <div>${settingsData.address_information}</div>
-                    </div>
-                </td>
-                <td style:"text-align: right">
-                    <div style="z-index: 1; text-align: right">
-                        <img style="width: 180px; height: auto"  src="${settingsData.company_logo.url}" />
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-`;
+      <div style="
+        position: relative;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        font-size: 10px;
+        background-color: ${settingsData.color_skin};
+        text-align: center;
+        padding: 0px;
+      ">
+          <table style="width: 100%; border-collapse: collapse;" cellpadding="20">
+              <tr>
+                  <td>
+                      <div style="color: ${textColor} !important; z-index: 1; text-align: left">
+                          <div>${settingsData.address_information}</div>
+                      </div>
+                  </td>
+                  <td style="text-align: right">
+                  
+                      <div style="z-index: 1; text-align: right">
+                          <img style="width: 180px; height: auto" src="${settingsData?.company_logo?.url}"/>
+                      </div>
+                  </td>
+              </tr>
+          </table>
+      </div>
+  `;
 
   header.appendChild(companyInfo);
 
@@ -1455,40 +1466,51 @@ async function exportToPDF() {
   const projectSummary = document.createElement("div");
   projectSummary.style.marginBottom = "20px";
   projectSummary.style.paddingTop = "20px";
-  projectSummary.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${
-      settingsData.color_skin
-    }; margin-bottom: 10px; padding-bottom: 3px">Project Information</h3>
-<table style="width: 100%; border-collapse: collapse;">
-  <tr>
-    <td style="vertical-align: top;">
-      <strong>Development Director:</strong> ${
-        settingsData.development_director
-      }
-      <br />
+
+  let contactRows = "";
+  settingsData?.contact_information.forEach((contact, index) => {
+    contactRows += `
+    <td style="vertical-align: top; padding-right: 20px; ${
+      index !== 0 ? "border-left: 1px solid #ccc; padding-left: 20px;" : ""
+    }">
+      <strong>${contact.contact_type}:<br /></strong> 
+      ${contact.contact_name}<br />
+      
       <strong>Contact Email:</strong> 
-      <a href="mailto:${settingsData.contact_email}">
-        ${settingsData.contact_email}
+      <a href="mailto:${contact.contact_email}">
+        ${contact.contact_email}
       </a>
     </td>
-
-    <td style="vertical-align: top;">
-      <strong>Technical Producer:</strong> ${settingsData.assigned_manager}
-      <br />
-      <strong>Contact Email:</strong> 
-      <a href="mailto:${settingsData.assigned_manager_email}">
-        ${settingsData.assigned_manager_email}
-      </a>
-    </td>
-
-    <td style="vertical-align: top;">
-      <strong>Report Date:</strong> ${new Date().toLocaleDateString()}
-    </td>
-  </tr>
-</table>
-
-
   `;
+  });
+
+  // Wrap the cells in a single row
+  const contactTable = `
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr>${contactRows}</tr>
+  </table>
+`;
+
+  projectSummary.innerHTML = `
+  <div style="border-bottom: 1px solid ${
+    settingsData.color_skin
+  }; margin-bottom: 10px; padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center;">
+    <h3 style="margin: 0;">Project Information</h3>
+    <p style="margin: 0;"><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
+  </div>
+
+  ${contactTable}
+
+<div class="flex items-center px-2 pt-1 pb-2 mt-4 text-sm text-blue-800 rounded-lg bg-blue-50 text-blue-400" role="alert">
+  <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+  </svg>
+  <span class="sr-only">Info</span>
+  <p style="font-size: 12px; color: #555; margin-top: 1rem;">
+    If you have any questions, concerns, or require clarification regarding the information provided in this report, please do not hesitate to contact us at the email addresses listed above. We are happy to assist and provide any additional details you may need.
+  </p>
+</div>
+`;
 
   // Summary
   const statusSummary = document.createElement("div");
@@ -1514,7 +1536,8 @@ async function exportToPDF() {
     return;
   }
 
-  logsTableContainer.innerHTML = `
+  logsTableContainer.innerHTML = isEmailOn.value
+    ? `
   <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
     <thead style="background-color: ${backgroundColor}; color: ${textColor}">
       <tr>
@@ -1536,6 +1559,55 @@ async function exportToPDF() {
             }</td>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
               log?.email || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.role || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
+              <div class="w-max">
+                <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
+                  ${
+                    renderColor(log?.action_type) === "green"
+                      ? "bg-green-500/20 text-green-900"
+                      : renderColor(log?.action_type) === "red"
+                      ? "bg-red-50 text-red-900"
+                      : "bg-yellow-50 text-yellow-900"
+                  }">
+                  <span>${translateAction(log?.action_type)}</span>
+                </div>
+              </div>
+            </td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.action_taken || "-"
+            }</td>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.action_time || "-"
+            }</td>
+          </tr>
+        `
+        )
+        .join("")}
+    </tbody>
+  </table>
+`
+    : `
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
+    <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+      <tr>
+        <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Role</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Action Taken</th>
+        <th style="border: 1px solid #ccc; padding: 8px; width: 120px;">Action Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${reportLogs.value
+        .map(
+          (log) => `
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+              log?.user_name || "-"
             }</td>
             <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
               log?.role || "-"
