@@ -47,6 +47,81 @@
             </div>
             <div class="flex flex-col items-center justify-end gap-2">
               <div class="flex items-center gap-2 self-end">
+                <button
+                  @click="showModal = true"
+                  class="bg-green-500/20 border border-green-900 font-bold text-green-900 px-4 py-2 rounded"
+                >
+                  Add Manual Entry
+                </button>
+
+                <!-- Modal -->
+                <div
+                  v-if="showModal"
+                  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                >
+                  <div class="bg-white p-6 rounded-lg w-full max-w-md">
+                    <h2 class="text-lg font-semibold mb-4">Manual Entry</h2>
+
+                    <!-- Dropdown -->
+                    <label class="block mb-2 font-medium">Select Option</label>
+                    <select
+                      v-model="selectedOption"
+                      class="w-full border rounded px-2 py-1 mb-4"
+                    >
+                      <option disabled value="">Please select an action</option>
+                      <option value="SITE_REVIEW">Site Review</option>
+                      <option value="UPDATED_CONFIG">
+                        Configuration Updated
+                      </option>
+                    </select>
+
+                    <!-- Textbox -->
+                    <label class="block mb-2 font-medium">Comment</label>
+                    <textarea
+                      v-model="comment"
+                      rows="3"
+                      class="w-full border rounded px-2 py-1 mb-4"
+                      placeholder="Enter your comment..."
+                    ></textarea>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end gap-2">
+                      <button
+                        @click="submitEntry"
+                        class="bg-green-500/20 border border-green-900 font-bold text-green-900 px-4 py-2 rounded flex flex-row gap-2"
+                      >
+                        <div v-if="loading" role="status">
+                          <svg
+                            aria-hidden="true"
+                            class="w-6 h-6 text-gray-200 animate-spin fill-gray-600"
+                            viewBox="0 0 100 101"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                              fill="currentColor"
+                            />
+                            <path
+                              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                              fill="currentFill"
+                            />
+                          </svg>
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                        {{ loading ? "Adding Manual Entry" : "Submit" }}
+                      </button>
+                      <button
+                        @click="showModal = false"
+                        class="bg-gray-300 px-4 py-2 rounded"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Modal -->
+
                 <input
                   type="text"
                   v-model="searchQuery"
@@ -1236,6 +1311,10 @@ const limit = ref(10);
 const currentPage = ref(1);
 const isOn = ref(true);
 const isEmailOn = ref(false);
+const showModal = ref(false);
+
+const selectedOption = ref("");
+const comment = ref("");
 const { translateAction, renderColor } = useActions();
 
 const api = axios.create({
@@ -1247,6 +1326,32 @@ const api = axios.create({
   },
   timeout: 100000,
 });
+
+const submitEntry = () => {
+  loading.value = true;
+
+  if (comment.value && selectedOption.value) {
+    api
+      .post("manual-entry", {
+        action_type: selectedOption.value,
+        action_taken: comment.value,
+      })
+      .then(() => {
+        showModal.value = false;
+        comment.value = "";
+        selectedOption.value = "";
+        offset.value = 0;
+        limit.value = 10;
+        currentPage.value = 1;
+        fetchLogs(offset.value, limit.value);
+        loading.value = false;
+      })
+      .catch((error) => {
+        console.error("Error adding manual entry:", error);
+        alert("Failed to add manual entry. Please try again.");
+      });
+  }
+};
 
 const getPagespeedData = async () => {
   loading.value = true;
@@ -1268,6 +1373,20 @@ const fetchUsers = async () => {
     users.value = response.data;
   } catch (error) {
     console.error("Error Fetching the logs:", error);
+  }
+};
+
+const insertManualEntry = async () => {
+  try {
+    const response = await api.post("insert-manual-entry", {
+      struckLogs: struckLogs.value,
+    });
+    if (response.status === 200) {
+      alert("Manual entry added successfully");
+      closestruckLogsModal();
+    }
+  } catch (error) {
+    console.error("Error inserting manual entry:", error);
   }
 };
 
@@ -1442,7 +1561,7 @@ async function exportToPDF() {
                       </div>
                   </td>
                   <td style="text-align: right">
-                  
+
                       <div style="z-index: 1; text-align: right">
                           <img style="width: 180px; height: auto" src="${settingsData?.company_logo?.url}"/>
                       </div>
@@ -1473,10 +1592,10 @@ async function exportToPDF() {
     <td style="vertical-align: top; padding-right: 20px; ${
       index !== 0 ? "border-left: 1px solid #ccc; padding-left: 20px;" : ""
     }">
-      <strong>${contact.contact_type}:<br /></strong> 
+      <strong>${contact.contact_type}:<br /></strong>
       ${contact.contact_name}<br />
-      
-      <strong>Contact Email:</strong> 
+
+      <strong>Contact Email:</strong>
       <a href="mailto:${contact.contact_email}">
         ${contact.contact_email}
       </a>

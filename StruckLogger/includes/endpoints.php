@@ -73,10 +73,10 @@ class Struck_endpoints
                     return $this->api->get_logs($offset, $limit);
                 }
             },
-            // 'permission_callback' => '__return_true',
-            'permission_callback' => function () {
-                return current_user_can('manage_options');
-            }
+            'permission_callback' => '__return_true',
+            // 'permission_callback' => function () {
+            //      return current_user_can('manage_options');
+            // }
         ]);
 
         register_rest_route('struck/v1', 'users', [
@@ -127,10 +127,10 @@ class Struck_endpoints
 
                 return $final_users;
             },
-            // 'permission_callback' => '__return_true',
-            'permission_callback' => function () {
-                return current_user_can('manage_options');
-            }
+            'permission_callback' => '__return_true',
+            // 'permission_callback' => function () {
+            //      return current_user_can('manage_options');
+            // }
         ]);
 
         register_rest_route('struck/v1', 'total', [
@@ -139,38 +139,10 @@ class Struck_endpoints
             'callback' => function () {
                 return $this->api->get_total_entries();
             },
-            // 'permission_callback' => '__return_true',
-            'permission_callback' => function () {
-                return current_user_can('manage_options');
-            }
-        ]);
-
-
-        register_rest_route('struck/v1', 'manual-entry', [
-            'methods' => 'POST',
-            'args' => array(
-                'action_type' => array(
-                    'validate_callback' => function ($param) {
-                        return is_string($param) && $this->api->validate_action($param);
-                    },
-                    'required' => true,
-                ),
-                'action_taken' => array(
-                    'validate_callback' => function ($param) {
-                        return is_string($param);
-                    },
-                    'required' => true,
-                ),
-            ),
-            'callback' => function (WP_REST_Request $request) {
-                $params = $request->get_params();
-
-                return $this->api->insert_manual_entry($params['action_type'], $params['action_taken']);
-            },
-            // 'permission_callback' => '__return_true',
-            'permission_callback' => function () {
-                return current_user_can('manage_options');
-            }
+            'permission_callback' => '__return_true',
+            // 'permission_callback' => function () {
+            //      return current_user_can('manage_options');
+            // }
         ]);
     }
 }

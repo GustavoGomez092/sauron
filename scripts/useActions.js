@@ -80,7 +80,9 @@ export default function useActions() {
       action.includes("login") ||
       action.includes("logged_in") ||
       action.includes("installed") ||
-      action.includes("activated")
+      action.includes("activated") ||
+      action.includes("SITE_REVIEW") ||
+      action.includes("UPDATED_CONFIG")
     ) {
       return "green";
     } else if (

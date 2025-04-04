@@ -65,36 +65,4 @@ class Struck_API
 
     return $logs;
   }
-
-  public function validate_action($action)
-  {
-    $valid_actions = ['SITE_REVIEW', 'UPDATED_CONFIG'];
-    return in_array($action, $valid_actions);
-  }
-
-
-  public function insert_manual_entry($action_type, $action_taken)
-  {
-    if (!$this->validate_action($action_type)) {
-      return false; // Invalid action type
-    }
-
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'struck_logs';
-
-    $current_user = wp_get_current_user();
-    $user_id = $current_user->ID;
-
-
-    $data = [
-      'user_id' => $user_id,
-      'user_name' => $current_user->display_name,
-      'action_type' => $action_type,
-      'action_taken' => $action_taken,
-    ];
-
-    $format = ['%d', '%s', '%s', '%s', '%s', '%s'];
-
-    return $wpdb->insert($table_name, $data, $format);
-  }
 }
