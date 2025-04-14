@@ -1,0 +1,354 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
+body.struck-logger_page_struck-settings {
+  --primary: #09090b;
+  --primary-hover:#3e3e3e;
+  --background: #FFFFFF;
+  --border: #D1D5DB;
+  --foreground: #09090b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --ring: #6B7280;
+  --card: #FFFFFF;
+  --radius: 0.5rem;
+  --card-foreground: #FFFFFF;
+  --font-geist-sans: 'Geist', sans-serif;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ring-offset-shadow: 0 0 #0000;
+  --ring-shadow: 0 0 #0000;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  font-family: var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
+.struck-logger_page_struck-settings .postbox-header {
+  display: none;
+}
+
+.struck-logger_page_struck-settings .acf-fields>.acf-tab-wrap .acf-tab-group {
+  margin-bottom: 0;
+  border: none;
+}
+
+.struck-logger_page_struck-settings .acf-fields>.acf-tab-wrap {
+  background-color: transparent;
+}
+
+.struck-logger_page_struck-settings .hide-if-no-js {
+  display: none;
+}
+
+/* Global */
+body.struck-logger_page_struck-settings {
+  background: white !important;
+}
+
+body.struck-logger_page_struck-settings #postbox-container-2 {
+  max-width: 1080px;
+}
+
+
+.struck-logger_page_struck-settings #post-body {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+body.struck-logger_page_struck-settings #post-body #submitdiv .postbox-header {
+  display: none;
+}
+
+body.struck-logger_page_struck-settings #publishing-action {
+  text-align: left !important;
+  float: left !important;
+}
+
+body.struck-logger_page_struck-settings #publishing-action .spinner {
+  display: none;
+}
+
+body.struck-logger_page_struck-settings #major-publishing-actions {
+  border: none;
+  background: none;
+}
+
+body.struck-logger_page_struck-settings .postbox {
+  border: none;
+  box-shadow: none;
+}
+
+body.struck-logger_page_struck-settings h1 {
+  font-family: var(--font-geist-sans),ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.struck-logger_page_struck-settings .acf-field {
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+  border: none;
+}
+
+.struck-logger_page_struck-settings .acf-fields.-border {
+  border: none;
+}
+
+.struck-logger_page_struck-settings label {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+
+/*group*/
+
+.struck-logger_page_struck-settings .acf-field-group, .struck-logger_page_struck-settings .acf-field-repeater {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--card);
+  color: var(--card-foreground);
+  box-shadow: var(--ring-offset-shadow,0 0 #0000),var(--ring-shadow,0 0 #0000),var(--shadow);
+  margin-top: 1rem;
+}
+
+.struck-logger_page_struck-settings .acf-field-group>.acf-label>label, .struck-logger_page_struck-settings .acf-field-repeater>.acf-label>label {
+  font-size: 1.2rem;
+  color: var(--foreground);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.struck-logger_page_struck-settings .acf-repeater .acf-field-group>.acf-label>label {
+  display: none;
+}
+
+/* Input */
+
+.struck-logger_page_struck-settings input {
+    display: flex;
+    height: 2.5rem;
+    width: 100%; 
+    border-radius: 0.375rem;
+    border: 1px solid var(--border);
+    background-color: var(--background);
+    padding-right: 0.75rem; 
+    padding-top: 0.5rem; 
+    padding-bottom: 0.5rem; 
+    font-size: 0.875rem; 
+    outline: none;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    color: var(--foreground);
+    font-weight: 500;
+    max-width: 30rem;
+    padding-left: 0.5rem;
+}
+
+.struck-logger_page_struck-settings input:focus {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.struck-logger_page_struck-settings input:-webkit-autofill {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.struck-logger_page_struck-settings input::placeholder {
+    color: var(--muted-foreground);
+}
+
+.struck-logger_page_struck-settings input:focus-visible {
+    outline: none;
+    border-color: var(--ring) / 0.70; 
+    box-shadow: 0 0 0 2px var(--ring) / 0.10;
+}
+
+.struck-logger_page_struck-settings input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Tabs */
+
+.struck-logger_page_struck-settings .acf-tab-wrap {
+  border: none;
+}
+
+.struck-logger_page_struck-settings ul.acf-tab-group {
+  display: inline-flex; 
+  height: 2.5rem; 
+  align-items: center; 
+  justify-content: center; 
+  border-radius: 0.375rem; 
+  padding: 0.25rem; 
+  color: var(--muted-foreground);
+  background-color: var(--muted);
+  border: none;
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li {
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  white-space: nowrap; 
+  border-radius: 0.25rem; 
+  padding: 0.25rem 1rem; 
+  font-size: 0.875rem; 
+  font-weight: 500; 
+  outline: none; 
+  box-shadow: none;
+  transition: all 0.2s ease; 
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px var(--ring); 
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li:disabled {
+  pointer-events: none; 
+  opacity: 0.5; 
+}
+
+.struck-logger_page_struck-settings .acf-tab-button:hover {
+  background-color: var(--muted);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px var(--background) / 0.10; 
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li.active {
+  background-color: var(--background);
+  color: var(--foreground); 
+  box-shadow: 0 1px 2px var(--backround) / 0.10; 
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li:hover {
+  background-color: var(--background);
+  color: var(--foreground); 
+  box-shadow: 0 1px 2px var(--backround) / 0.10; 
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li:hover a {
+  background-color: transparent;
+  
+}
+
+.struck-logger_page_struck-settings .acf-tab-group li a {
+  transition: all 0.2s ease;
+  padding: inherit;
+  background-color: transparent;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+  font-weight: inherit;
+  line-height: inherit;
+  border: 0 none;
+  border-bottom: 0 none;
+  background: inherit;
+}
+
+/* Button */
+#publishing-action input, .acf-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  border-radius: 0.375rem !important; 
+  font-size: 0.875rem !important; 
+  font-weight: 600 !important;
+  outline: none !important;
+  background-color: var(--primary) !important;
+  color: white !important; 
+  border: 0.0375rem solid var(--border) !important;
+  transition: background-color 0.2s ease !important;
+  height: 2.5rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  max-width: 20rem !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+}
+
+#publishing-action input:hover, .acf-button:hover {
+  cursor: pointer  !important;
+  background-color: var(--primary-hover) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+#publishing-action input:focus-visible, .acf-button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--primary-hover) !important;
+}
+
+#publishing-action input:disabled, .acf-button:disabled {
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+}
+
+#publishing-action input:disabled:focus-visible, .acf-button:disabled:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Repeater */
+
+.struck-logger_page_struck-settings .acf-field-repeater .-table thead {
+  display: none;
+}
+
+.struck-logger_page_struck-settings .acf-field-repeater table {
+  border: none;
+  padding-top: 10px;
+  background: transparent;
+}
+
+.struck-logger_page_struck-settings .acf-field-repeater table tr .acf-row-handle {
+  background: transparent;
+}
+
+.struck-logger_page_struck-settings .acf-field-repeater table tr .acf-row-handle span {
+  color: var(--muted-foreground);
+  font-size: 1.2rem;
+}
+
+.struck-logger_page_struck-settings .acf-field-repeater table tr .acf-row-handle.remove {
+  border: none;
+}
+
+.struck-logger_page_struck-settings .acf-field-repeater table {
+  border-spacing: 0 15px;
+}
+
+/* Select */
+.struck-logger_page_struck-settings select {
+  display: flex;
+  height: 2.5rem; 
+  width: 100%; 
+  align-items: center; 
+  justify-content: space-between;
+  border-radius: 0.375rem; 
+  border: 1px solid var(--border); 
+  background-color: var(--background);
+  padding-left: 0.75rem; 
+  padding-right: 0.75rem; 
+  padding-top: 0.5rem; 
+  padding-bottom: 0.5rem; 
+  font-size: 0.875rem; 
+  outline: none; 
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  color: var(--foreground);
+}
+
+.struck-logger_page_struck-settings .acf-field.acf-field-select {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.acf-image-uploader.has-value img {
+  background: black;
+}

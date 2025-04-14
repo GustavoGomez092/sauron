@@ -15,6 +15,7 @@ class struck_plugin_options
     add_action('admin_menu', array($this, 'create_admin_menu_page'));
     add_action('acf/init', array($this, 'add_struck_settings'));
     add_action('acf/include_fields', array($this, 'settings_acf_fields'));
+    add_action('admin_enqueue_scripts', array($this, 'acf_settings_css'));
   }
 
   public function register_plugin_settings()
@@ -40,7 +41,8 @@ class struck_plugin_options
 
       acf_add_options_page(array(
         'page_title' => 'Settings',
-        'menu_slug' => 'settings',
+        'menu_title' => 'Settings',
+        'menu_slug' => 'struck-settings',
         'parent_slug' => 'struck-logs',
         'position' => '',
         'redirect' => false,
@@ -59,28 +61,266 @@ class struck_plugin_options
       'key' => 'group_67928ede51966',
       'title' => 'Setting Options',
       'fields' => array(
-
-        array(
-          'key' => 'field_67928ef91b68e',
-          'label' => 'Address Information',
-          'name' => 'address_information',
-          'aria-label' => '',
-          'type' => 'wysiwyg',
+        [
+          'key' => 'field_be4c7146a2c3df',
+          'label' => 'General settings',
+          'name' => 'gneral_settings',
+          'graphql_field_name' => 'gneral_settings',
+          'show_in_graphql' => 1,
+          'graphql_description' => '',
+          'graphql_non_null' => 0,
+          'type' => 'tab',
           'instructions' => '',
-          'required' => 1,
+          'required' => 0,
           'conditional_logic' => 0,
-          'wrapper' => array(
+          'wrapper' => [
             'width' => '',
             'class' => '',
             'id' => '',
-          ),
-          'default_value' => '',
-          'allow_in_bindings' => 0,
-          'tabs' => 'all',
-          'toolbar' => 'full',
-          'media_upload' => 1,
-          'delay' => 0,
-        ),
+          ],
+          'placement' => 'top',
+          'endpoint' => 0,
+        ],
+        [
+          'key' => 'field_bed26625a645f6',
+          'label' => 'Visual identity',
+          'name' => 'visual_identity',
+          'graphql_field_name' => 'visual_identity',
+          'show_in_graphql' => 1,
+          'graphql_description' => '',
+          'graphql_non_null' => 0,
+          'type' => 'group',
+          'instructions' => '',
+          'required' => 0,
+          'conditional_logic' => 0,
+          'wrapper' => [
+            'width' => '',
+            'class' => '',
+            'id' => '',
+          ],
+          'layout' => 'block',
+          'sub_fields' => [
+            array(
+              'key' => 'field_679290751b690',
+              'label' => 'Color Skin',
+              'name' => 'color_skin',
+              'aria-label' => '',
+              'type' => 'color_picker',
+              'instructions' => '',
+              'required' => 0,
+              'conditional_logic' => 0,
+              'wrapper' => array(
+                'width' => '50',
+                'class' => '',
+                'id' => '',
+              ),
+              'default_value' => '#EF4136',
+              'enable_opacity' => 0,
+              'return_format' => 'string',
+              'allow_in_bindings' => 0,
+            ),
+            array(
+              'key' => 'field_b6662c545d19c5',
+              'label' => 'Company Logo',
+              'name' => 'company_logo',
+              'graphql_field_name' => 'company_logo',
+              'show_in_graphql' => 1,
+              'graphql_description' => '',
+              'graphql_non_null' => 0,
+              'type' => 'image',
+              'instructions' => '',
+              'required' => 1,
+              'conditional_logic' => 0,
+              'wrapper' => array(
+                'width' => '50',
+                'class' => '',
+                'id' => '',
+              ),
+              'return_format' => 'array',
+              'preview_size' => 'medium',
+              'library' => 'all',
+              'min_width' => '',
+              'min_height' => '',
+              'min_size' => '',
+              'max_width' => '',
+              'max_height' => '',
+              'max_size' => '',
+              'mime_types' => '.png',
+            ),
+          ],
+        ],
+        [
+          'key' => 'field_578de34247e371',
+          'label' => 'Export settings',
+          'name' => 'export_settings',
+          'graphql_field_name' => 'export_settings',
+          'show_in_graphql' => 1,
+          'graphql_description' => '',
+          'graphql_non_null' => 0,
+          'type' => 'group',
+          'instructions' => '',
+          'required' => 0,
+          'conditional_logic' => 0,
+          'wrapper' => [
+            'width' => '',
+            'class' => '',
+            'id' => '',
+          ],
+          'layout' => 'block',
+          'sub_fields' => [
+            [
+              'key' => 'field_2453d6036045c7',
+              'label' => 'Add email address column on export?',
+              'name' => 'email_on_export',
+              'graphql_field_name' => 'email_on_export',
+              'show_in_graphql' => 1,
+              'graphql_description' => '',
+              'graphql_non_null' => 0,
+              'type' => 'true_false',
+              'instructions' => '',
+              'required' => 0,
+              'conditional_logic' => 0,
+              'wrapper' => [
+                'width' => '',
+                'class' => '',
+                'id' => '',
+              ],
+              'message' => '',
+              'default_value' => 0,
+              'ui' => 1,
+              'ui_on_text' => '',
+              'ui_off_text' => '',
+            ],
+            [
+              'key' => 'field_b5159a59c9508f',
+              'label' => 'Add PageSpeed results on export?',
+              'name' => 'pageSpee_on_export',
+              'graphql_field_name' => 'pageSpee_on_export',
+              'show_in_graphql' => 1,
+              'graphql_description' => '',
+              'graphql_non_null' => 0,
+              'type' => 'true_false',
+              'instructions' => '',
+              'required' => 0,
+              'conditional_logic' => 0,
+              'wrapper' => [
+                'width' => '',
+                'class' => '',
+                'id' => '',
+              ],
+              'message' => '',
+              'default_value' => 0,
+              'ui' => 1,
+              'ui_on_text' => '',
+              'ui_off_text' => '',
+            ],
+            [
+              'key' => 'field_dff38239f6ae18',
+              'label' => 'Add content updates on export?',
+              'name' => 'content_updates_on_export',
+              'graphql_field_name' => 'content_updates_on_export',
+              'show_in_graphql' => 1,
+              'graphql_description' => '',
+              'graphql_non_null' => 0,
+              'type' => 'true_false',
+              'instructions' => '',
+              'required' => 0,
+              'conditional_logic' => 0,
+              'wrapper' => [
+                'width' => '',
+                'class' => '',
+                'id' => '',
+              ],
+              'message' => '',
+              'default_value' => 0,
+              'ui' => 1,
+              'ui_on_text' => '',
+              'ui_off_text' => '',
+            ],
+          ],
+        ],
+        [
+          'key' => 'field_7eea8c57e49dd2',
+          'label' => 'Address Information',
+          'name' => 'address_information',
+          'graphql_field_name' => 'address_information',
+          'show_in_graphql' => 1,
+          'graphql_description' => '',
+          'graphql_non_null' => 0,
+          'type' => 'tab',
+          'instructions' => '',
+          'required' => 0,
+          'conditional_logic' => 0,
+          'wrapper' => [
+            'width' => '',
+            'class' => '',
+            'id' => '',
+          ],
+          'placement' => 'top',
+          'endpoint' => 0,
+        ],
+        [
+          'key' => 'field_05221226c93c6c',
+          'label' => 'Company Address',
+          'name' => 'company-address',
+          'graphql_field_name' => 'company-address',
+          'show_in_graphql' => 1,
+          'graphql_description' => '',
+          'graphql_non_null' => 0,
+          'type' => 'group',
+          'instructions' => '',
+          'required' => 0,
+          'conditional_logic' => 0,
+          'wrapper' => [
+            'width' => '',
+            'class' => '',
+            'id' => '',
+          ],
+          'layout' => 'block',
+          'sub_fields' => [
+            array(
+              'key' => 'field_67928ef91b68e',
+              'label' => 'Address Information',
+              'name' => 'address_information',
+              'aria-label' => '',
+              'type' => 'wysiwyg',
+              'instructions' => '',
+              'required' => 1,
+              'conditional_logic' => 0,
+              'wrapper' => array(
+                'width' => '',
+                'class' => '',
+                'id' => '',
+              ),
+              'default_value' => '',
+              'allow_in_bindings' => 0,
+              'tabs' => 'all',
+              'toolbar' => 'full',
+              'media_upload' => 1,
+              'delay' => 0,
+            ),
+          ],
+        ],
+        [
+          'key' => 'field_e9767a46de2ec8',
+          'label' => 'contact-information',
+          'name' => 'contact_information',
+          'graphql_field_name' => 'contact_information',
+          'show_in_graphql' => 1,
+          'graphql_description' => '',
+          'graphql_non_null' => 0,
+          'type' => 'tab',
+          'instructions' => '',
+          'required' => 0,
+          'conditional_logic' => 0,
+          'wrapper' => [
+            'width' => '',
+            'class' => '',
+            'id' => '',
+          ],
+          'placement' => 'top',
+          'endpoint' => 0,
+        ],
         array(
           'key' => 'field_c764544247877f',
           'label' => 'Contact Information',
@@ -102,7 +342,7 @@ class struck_plugin_options
           'min' => 3,
           'max' => 4,
           'layout' => 'block',
-          'button_label' => '',
+          'button_label' => 'Add Contact person',
           'sub_fields' => array(
             array(
               'key' => 'field_1f932c3699c37e',
@@ -175,61 +415,13 @@ class struck_plugin_options
             ),
           ),
         ),
-
-        array(
-          'key' => 'field_679290751b690',
-          'label' => 'Color Skin',
-          'name' => 'color_skin',
-          'aria-label' => '',
-          'type' => 'color_picker',
-          'instructions' => '',
-          'required' => 0,
-          'conditional_logic' => 0,
-          'wrapper' => array(
-            'width' => '50',
-            'class' => '',
-            'id' => '',
-          ),
-          'default_value' => '#EF4136',
-          'enable_opacity' => 0,
-          'return_format' => 'string',
-          'allow_in_bindings' => 0,
-        ),
-        array(
-          'key' => 'field_b6662c545d19c5',
-          'label' => 'Company Logo',
-          'name' => 'company_logo',
-          'graphql_field_name' => 'company_logo',
-          'show_in_graphql' => 1,
-          'graphql_description' => '',
-          'graphql_non_null' => 0,
-          'type' => 'image',
-          'instructions' => '',
-          'required' => 1,
-          'conditional_logic' => 0,
-          'wrapper' => array(
-            'width' => '50',
-            'class' => '',
-            'id' => '',
-          ),
-          'return_format' => 'array',
-          'preview_size' => 'medium',
-          'library' => 'all',
-          'min_width' => '',
-          'min_height' => '',
-          'min_size' => '',
-          'max_width' => '',
-          'max_height' => '',
-          'max_size' => '',
-          'mime_types' => '.png',
-        ),
       ),
       'location' => array(
         array(
           array(
             'param' => 'options_page',
             'operator' => '==',
-            'value' => 'settings',
+            'value' => 'struck-settings',
           ),
         ),
       ),
@@ -243,6 +435,49 @@ class struck_plugin_options
       'description' => '',
       'show_in_rest' => 1,
     ));
+  }
+
+  public function acf_settings_css()
+  {
+    add_action('acf/input/admin_enqueue_scripts', 'settings_css');
+    add_action('acf/input/admin_footer', 'settings_js');
+
+    function settings_css()
+    {
+      wp_enqueue_style('struck-settings-acf-css', plugin_dir_url(__FILE__) . '/index.css', [], '1.0.0');
+    }
+
+    function settings_js()
+    {
+      ?>
+<script>
+acf.addAction('ready', function($el) {
+  // Check if we're on the specific options page
+  if (acf.get('screen') !== 'options') return;
+
+  // Optional: Check a specific options page ID (e.g., options-general, options-theme)
+  if (acf.get('post_id') !== 'options') return; // or 'options_custom_name'
+
+  const field = acf.getField('field_bed26625a645f6');
+
+  const currentColorVal = field.val();
+
+  const targetBG = document.querySelector(
+    '.acf-field.acf-field-image.acf-field-b6662c545d19c5 > div > div > div > img');
+
+  targetBG.style.padding = '20px';
+
+  if (field) {
+    targetBG.style.backgroundColor = currentColorVal;
+    field.on('change', function(e) {
+      var newColor = field.val();
+      targetBG.style.backgroundColor = newColor;
+    });
+  }
+});
+</script>
+<?php
+    }
   }
 
   public function render_plugin_options_page()
