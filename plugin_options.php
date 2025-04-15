@@ -194,8 +194,8 @@ class struck_plugin_options
             [
               'key' => 'field_b5159a59c9508f',
               'label' => 'Add PageSpeed results on export?',
-              'name' => 'pageSpee_on_export',
-              'graphql_field_name' => 'pageSpee_on_export',
+              'name' => 'pageSpeed_on_export',
+              'graphql_field_name' => 'pageSpeed_on_export',
               'show_in_graphql' => 1,
               'graphql_description' => '',
               'graphql_non_null' => 0,

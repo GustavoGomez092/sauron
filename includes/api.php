@@ -44,21 +44,33 @@ class Struck_API
   /**
    * Retrieves the logs for an specific user and date range.
    */
-  public function get_user_logs_by_date_range($user_id, $start_date, $end_date)
+  public function get_user_logs_by_date_range($user_ids, $start_date, $end_date)
   {
+
     global $wpdb;
     $table_name = $wpdb->prefix . 'struck_logs';
     $logs = '';
-    if (!$user_id) {
+    // extract the ids from the $user_ids array, the id is in the key id
+    $user_ids = array_map(function ($user) {
+      return $user['id'];
+    }, $user_ids);
+    // convert the array to a comma separated string
+    $user_ids = implode(',', $user_ids);
+    // check if there is a * in the array, if so, set the $user_ids to null
+    if (str_contains('*', $user_ids)) {
+      $user_ids = null;
+    }
+    // check if the $user_ids is null, if so, get all logs
+    if ($user_ids === null) {
       $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE DATE(action_time) BETWEEN %s AND %s", $start_date, $end_date));
     } else {
-      $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id = %d AND DATE(action_time) BETWEEN %s AND %s", $user_id, $start_date, $end_date));
+      $logs = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE user_id IN ($user_ids) AND DATE(action_time) BETWEEN %s AND %s", $start_date, $end_date));
     }
 
     foreach ($logs as &$value) {
       $user = get_userdata($value->user_id);
-      $user_email = $user->data->user_email;
-      $role = $user->roles[0];
+      $user_email = $user ? $user->data->user_email : '';
+      $role = $user ? $user->roles[0] : 'System';
       $value->email = $user_email;
       $value->role = $role;
     }

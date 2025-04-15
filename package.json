@@ -11,9 +11,12 @@
     "init": "node ./scripts/init.mjs"
   },
   "dependencies": {
+    "@vueuse/components": "^13.1.0",
+    "@vueuse/core": "^13.1.0",
     "axios": "^1.7.9",
     "html2pdf.js": "^0.10.2",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-multiselect": "^3.2.0"
   },
   "devDependencies": {
     "@inquirer/prompts": "^7.2.3",

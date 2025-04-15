@@ -38,9 +38,9 @@ class Struck_endpoints
                     },
                     'required' => false,
                 ),
-                'user_id' => array(
+                'user_ids' => array(
                     'validate_callback' => function ($param) {
-                        return is_numeric($param);
+                        return is_array($param);
                     },
                     'required' => false,
                 ),
@@ -63,12 +63,12 @@ class Struck_endpoints
 
                 $offset = array_key_exists('offset', $params) ? $params['offset'] : 0;
                 $limit = array_key_exists('limit', $params) ? $params['limit'] : 10;
-                $user_id = array_key_exists('user_id', $params) ? $params['user_id'] : null;
+                $user_ids = array_key_exists('user_ids', $params) ? $params['user_ids'] : null;
                 $start_date = array_key_exists('start_date', $params) ? $params['start_date'] : null;
                 $end_date = array_key_exists('end_date', $params) ? $params['end_date'] : null;
 
                 if ($start_date && $end_date) {
-                    return $this->api->get_user_logs_by_date_range($user_id, $start_date, $end_date);
+                    return $this->api->get_user_logs_by_date_range($user_ids, $start_date, $end_date);
                 } else {
                     return $this->api->get_logs($offset, $limit);
                 }

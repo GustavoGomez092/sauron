@@ -1194,18 +1194,22 @@
           <label for="user" class="block mb-2 text-sm font-medium text-gray-900"
             >Select User</label
           >
-          <select
+          <multiselect
+            v-if="users.length"
             id="user"
-            v-model="struckLogs.user"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-          >
-            <option value="">All Users</option>
-            <option v-for="user in users" :key="user.id" :value="user.id">
-              {{ user.name }}
-            </option>
-          </select>
+            ref="multiRef"
+            v-model="struckLogs.users"
+            :multiple="true"
+            :close-on-select="false"
+            :hide-selected="true"
+            :taggable="true"
+            track-by="code"
+            placeholder="Pick a user"
+            label="name"
+            :preselect-first="true"
+            :options="users"
+          ></multiselect>
         </div>
-
         <div class="mb-4">
           <label
             for="summary"
@@ -1236,7 +1240,7 @@
       </div>
 
       <div class="mt-6 flex flex-col gap-6 justify-end">
-        <div class="flex items-center gap-2">
+        <!-- <div class="flex items-center gap-2">
           <p>Include Site Page Speed and metrics in the report?</p>
           <button
             @click="toggleState"
@@ -1251,7 +1255,7 @@
             class="toggle-button"
             :class="{ on: isEmailOn, off: !isEmailOn }"
           ></button>
-        </div>
+        </div> -->
         <button
           @click="exportToPDF"
           :disabled="loading"
@@ -1292,30 +1296,43 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
-import useActions from "../../scripts/useActions";
-import html2pdf from "html2pdf.js";
-import axios from "axios";
+import { ref, computed, watch, onMounted } from "vue"
+import useActions from "../../scripts/useActions"
+import html2pdf from "html2pdf.js"
+import axios from "axios"
+import Multiselect from "vue-multiselect"
+import { onClickOutside } from "@vueuse/core"
+import { useTemplateRef } from "vue"
 
-const showstruckLogsModal = ref(false);
-const searchQuery = ref("");
-const isSearching = ref(false);
-const loading = ref(false);
-const settingsData = window.struckData.plugin_options;
-const users = ref([]);
-const reportLogs = ref([]);
-const logs = ref([]);
-const totalLogs = ref(0);
-const offset = ref(0);
-const limit = ref(10);
-const currentPage = ref(1);
-const isOn = ref(true);
-const isEmailOn = ref(false);
-const showModal = ref(false);
+const showstruckLogsModal = ref(false)
+const searchQuery = ref("")
+const isSearching = ref(false)
+const loading = ref(false)
+const settingsData = window.struckData.plugin_options
+const users = ref([])
+const reportLogs = ref([])
+const logs = ref([])
+const totalLogs = ref(0)
+const offset = ref(0)
+const limit = ref(10)
+const currentPage = ref(1)
+const isOn = ref(
+  window.struckData.plugin_options.export_settings.pageSpeed_on_export
+)
+const isEmailOn = ref(
+  window.struckData.plugin_options.export_settings.email_on_export
+)
+const showModal = ref(false)
+const multiSelect = useTemplateRef("multiRef")
+const selectedOption = ref("")
+const comment = ref("")
+const { translateAction, renderColor } = useActions()
 
-const selectedOption = ref("");
-const comment = ref("");
-const { translateAction, renderColor } = useActions();
+const closeMultiSelect = () => {
+  console.log(multiSelect.value)
+  multiSelect.value.deactivate()
+}
+onClickOutside(multiSelect, closeMultiSelect)
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -1325,10 +1342,10 @@ const api = axios.create({
     "X-WP-Nonce": window.wpApiSettings.nonce,
   },
   timeout: 100000,
-});
+})
 
 const submitEntry = () => {
-  loading.value = true;
+  loading.value = true
 
   if (comment.value && selectedOption.value) {
     api
@@ -1337,58 +1354,46 @@ const submitEntry = () => {
         action_taken: comment.value,
       })
       .then(() => {
-        showModal.value = false;
-        comment.value = "";
-        selectedOption.value = "";
-        offset.value = 0;
-        limit.value = 10;
-        currentPage.value = 1;
-        fetchLogs(offset.value, limit.value);
-        loading.value = false;
+        showModal.value = false
+        comment.value = ""
+        selectedOption.value = ""
+        offset.value = 0
+        limit.value = 10
+        currentPage.value = 1
+        fetchLogs(offset.value, limit.value)
+        loading.value = false
       })
       .catch((error) => {
-        console.error("Error adding manual entry:", error);
-        alert("Failed to add manual entry. Please try again.");
-      });
+        console.error("Error adding manual entry:", error)
+        alert("Failed to add manual entry. Please try again.")
+      })
   }
-};
+}
 
 const getPagespeedData = async () => {
-  loading.value = true;
-  const response = await api.get("pagespeed");
-  window.struckData.page_speed_data = response.data;
-};
-
-const toggleState = () => {
-  isOn.value = !isOn.value;
-};
-
-const toggleEmailState = () => {
-  isEmailOn.value = !isEmailOn.value;
-};
+  loading.value = true
+  const response = await api.get("pagespeed")
+  window.struckData.page_speed_data = response.data
+}
 
 const fetchUsers = async () => {
   try {
-    const response = await api.get("users");
-    users.value = response.data;
+    const response = await api.get("users")
+    response.data.unshift({ id: "0", name: "System events", email: "" })
+    response.data.unshift({ id: "*", name: "All users", email: "" })
+    const finalArray = response.data.map((user) => {
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        code: user.email.substring(0, 2) + Math.floor(Math.random() * 10000000),
+      }
+    })
+    users.value = finalArray
   } catch (error) {
-    console.error("Error Fetching the logs:", error);
+    console.error("Error Fetching the logs:", error)
   }
-};
-
-const insertManualEntry = async () => {
-  try {
-    const response = await api.post("insert-manual-entry", {
-      struckLogs: struckLogs.value,
-    });
-    if (response.status === 200) {
-      alert("Manual entry added successfully");
-      closestruckLogsModal();
-    }
-  } catch (error) {
-    console.error("Error inserting manual entry:", error);
-  }
-};
+}
 
 const fetchLogs = async (
   offset = 0,
@@ -1398,65 +1403,85 @@ const fetchLogs = async (
   endDate = null,
   report = false
 ) => {
-  isSearching.value = true;
+  isSearching.value = true
 
   try {
     const response = await api.get("logs", {
       params: {
         offset: offset,
         limit: limit,
-        user_id: id,
+        user_ids: id,
         start_date: startDate,
         end_date: endDate,
       },
-    });
+    })
 
-    const logsResponse = await api.get("total");
+    const logsResponse = await api.get("total")
 
     if (report) {
-      reportLogs.value = response.data;
+      reportLogs.value = response.data
     } else {
-      logs.value = response.data;
-      totalLogs.value = logsResponse.data;
+      logs.value = response.data
+      totalLogs.value = logsResponse.data
     }
 
     setTimeout(() => {
-      isSearching.value = false;
-    }, 500);
+      isSearching.value = false
+    }, 500)
   } catch (error) {
-    console.error("Error Fetching the logs:", error);
+    console.error("Error Fetching the logs:", error)
   }
-};
+}
 
 const nextPage = () => {
   if (offset.value + limit.value < totalLogs.value) {
-    currentPage.value += 1;
-    offset.value += limit.value;
-    fetchLogs(offset.value, limit.value);
+    currentPage.value += 1
+    offset.value += limit.value
+    fetchLogs(offset.value, limit.value)
   }
-};
+}
 
 const prevPage = () => {
   if (offset.value > 0) {
-    currentPage.value -= 1;
-    offset.value -= limit.value;
-    fetchLogs(offset.value, limit.value);
+    currentPage.value -= 1
+    offset.value -= limit.value
+    fetchLogs(offset.value, limit.value)
   }
-};
+}
+
+const today = new Date()
 
 const struckLogs = ref({
-  startDate: "",
-  endDate: "",
+  // today's date
+  startDate:
+    today.getFullYear() +
+    "-" +
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(today.getDate()).padStart(2, "0"),
+  endDate:
+    today.getFullYear() +
+    "-" +
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(today.getDate()).padStart(2, "0"),
   reportType: "",
   activity: "",
-  user: "",
+  users: [],
   summary: "",
   recommendations: "",
-});
+})
+
+// watch for changes in struckLogs
+watch(struckLogs, (newValue) => {
+  if (newValue) {
+    console.log("struckLogs changed:", newValue)
+  }
+})
 
 const filteredLogs = computed(() => {
   return logs.value.filter((user) => {
-    const search = searchQuery.value.toLowerCase();
+    const search = searchQuery.value.toLowerCase()
     return (
       user.user_name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
@@ -1464,84 +1489,84 @@ const filteredLogs = computed(() => {
       user.action_type.toLowerCase().includes(search) ||
       user.action_taken.toLowerCase().includes(search) ||
       user.action_time.toLowerCase().includes(search)
-    );
-  });
-});
+    )
+  })
+})
 
 watch(searchQuery, (newValue) => {
   if (newValue) {
-    isSearching.value = true;
+    isSearching.value = true
     setTimeout(() => {
-      isSearching.value = false;
-    }, 500);
+      isSearching.value = false
+    }, 500)
   } else {
-    isSearching.value = false;
+    isSearching.value = false
   }
-});
+})
 
 function openstruckLogsModal() {
-  showstruckLogsModal.value = true;
+  showstruckLogsModal.value = true
 }
 
 function closestruckLogsModal() {
-  showstruckLogsModal.value = false;
+  showstruckLogsModal.value = false
 }
 
 function wc_hex_is_light(color) {
-  if (!color) return;
-  const hex = color.replace("#", "");
-  const c_r = parseInt(hex.substring(0, 2), 16);
-  const c_g = parseInt(hex.substring(2, 4), 16);
-  const c_b = parseInt(hex.substring(4, 6), 16);
-  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
-  return brightness > 155;
+  if (!color) return
+  const hex = color.replace("#", "")
+  const c_r = parseInt(hex.substring(0, 2), 16)
+  const c_g = parseInt(hex.substring(2, 4), 16)
+  const c_b = parseInt(hex.substring(4, 6), 16)
+  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
+  return brightness > 155
 }
 
-const backgroundColor = settingsData.color_skin;
-const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff";
+const backgroundColor = settingsData.color_skin
+const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff"
 
 function scoreColor(score) {
   if (score >= 85 && score <= 100) {
-    return "good";
+    return "good"
   } else if (score >= 65 && score < 85) {
-    return "medium";
+    return "medium"
   } else if (score >= 0 && score < 65) {
-    return "bad";
+    return "bad"
   } else {
-    return "";
+    return ""
   }
 }
 async function exportToPDF() {
   if (isOn.value) {
-    await getPagespeedData();
+    await getPagespeedData()
   } else {
-    loading.value = true;
+    loading.value = true
   }
 
   await fetchLogs(
     0,
     10,
-    struckLogs.value.user ? struckLogs.value.user : null,
+    struckLogs.value.users ? struckLogs.value.users : null,
     struckLogs.value.startDate,
     struckLogs.value.endDate,
     true
-  );
+  )
 
-  const pluginsData = window.struckData.installed_plugins || [];
+  const pluginsData = window.struckData.installed_plugins || []
 
-  const wrapperElement = document.createElement("div");
-  wrapperElement.style.fontFamily = "Arial, sans-serif";
-  wrapperElement.style.fontSize = "12px";
-  wrapperElement.style.lineHeight = "1.5";
-  wrapperElement.classList.add = "main-container";
+  const wrapperElement = document.createElement("div")
+  wrapperElement.style.fontFamily = "Arial, sans-serif"
+  wrapperElement.style.fontSize = "12px"
+  wrapperElement.style.lineHeight = "1.5"
+  wrapperElement.classList.add = "main-container"
 
   // Header
-  const header = document.createElement("div");
-  header.style.alignItems = "center";
-  header.style.marginBottom = "20px";
-  header.style.padding = "10px 0px";
+  const header = document.createElement("div")
+  header.style.alignItems = "center"
+  header.style.marginBottom = "20px"
+  header.style.padding = "10px 0px"
 
-  const companyInfo = document.createElement("div");
+  const companyInfo = document.createElement("div")
   companyInfo.innerHTML = `
       <div style="
         position: relative;
@@ -1569,24 +1594,24 @@ async function exportToPDF() {
               </tr>
           </table>
       </div>
-  `;
+  `
 
-  header.appendChild(companyInfo);
+  header.appendChild(companyInfo)
 
   // Title
-  const title = document.createElement("h1");
-  title.innerText = "Website Maintenance and Core Vitals Report";
-  title.style.textAlign = "left";
-  title.style.fontSize = "18px";
-  title.style.marginBottom = "20px";
-  title.style.borderBottom = `5px solid ${settingsData.color_skin}`;
+  const title = document.createElement("h1")
+  title.innerText = "Website Maintenance and Core Vitals Report"
+  title.style.textAlign = "left"
+  title.style.fontSize = "18px"
+  title.style.marginBottom = "20px"
+  title.style.borderBottom = `5px solid ${settingsData.color_skin}`
 
   // Information
-  const projectSummary = document.createElement("div");
-  projectSummary.style.marginBottom = "20px";
-  projectSummary.style.paddingTop = "20px";
+  const projectSummary = document.createElement("div")
+  projectSummary.style.marginBottom = "20px"
+  projectSummary.style.paddingTop = "20px"
 
-  let contactRows = "";
+  let contactRows = ""
   settingsData?.contact_information.forEach((contact, index) => {
     contactRows += `
     <td style="vertical-align: top; padding-right: 20px; ${
@@ -1600,15 +1625,15 @@ async function exportToPDF() {
         ${contact.contact_email}
       </a>
     </td>
-  `;
-  });
+  `
+  })
 
   // Wrap the cells in a single row
   const contactTable = `
   <table style="width: 100%; border-collapse: collapse;">
     <tr>${contactRows}</tr>
   </table>
-`;
+`
 
   projectSummary.innerHTML = `
   <div style="border-bottom: 1px solid ${
@@ -1629,30 +1654,30 @@ async function exportToPDF() {
     If you have any questions, concerns, or require clarification regarding the information provided in this report, please do not hesitate to contact us at the email addresses listed above. We are happy to assist and provide any additional details you may need.
   </p>
 </div>
-`;
+`
 
   // Summary
-  const statusSummary = document.createElement("div");
-  statusSummary.style.marginBottom = "20px";
-  statusSummary.style.paddingTop = "20px";
+  const statusSummary = document.createElement("div")
+  statusSummary.style.marginBottom = "20px"
+  statusSummary.style.paddingTop = "20px"
   statusSummary.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
     <p>${struckLogs.value.summary}</p>
-  `;
+  `
 
   // Table start
-  const projectOverview = document.createElement("div");
-  projectOverview.style.marginBottom = "20px";
-  projectOverview.style.paddingTop = "20px";
+  const projectOverview = document.createElement("div")
+  projectOverview.style.marginBottom = "20px"
+  projectOverview.style.paddingTop = "20px"
   projectOverview.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
-  `;
+  `
 
   // const tableElement = document.getElementById("export-table");
-  const logsTableContainer = document.createElement("div");
+  const logsTableContainer = document.createElement("div")
   if (!filteredLogs.value.length) {
-    alert("No data available to export.");
-    return;
+    alert("No data available to export.")
+    return
   }
 
   logsTableContainer.innerHTML = isEmailOn.value
@@ -1757,20 +1782,20 @@ async function exportToPDF() {
         .join("")}
     </tbody>
   </table>
-`;
+`
 
   // projectOverview.appendChild(clonedTable);
   // Table ends
 
   // Plugins Table
-  const installedPluginsHeader = document.createElement("div");
-  installedPluginsHeader.style.marginBottom = "20px";
-  installedPluginsHeader.style.paddingTop = "20px";
+  const installedPluginsHeader = document.createElement("div")
+  installedPluginsHeader.style.marginBottom = "20px"
+  installedPluginsHeader.style.paddingTop = "20px"
   installedPluginsHeader.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
-  `;
+  `
 
-  const pluginsTableContainer = document.createElement("div");
+  const pluginsTableContainer = document.createElement("div")
   pluginsTableContainer.innerHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
         <thead style="background-color: ${backgroundColor}; color: ${textColor}">
@@ -1800,15 +1825,15 @@ async function exportToPDF() {
           .join("")}
       </tbody>
     </table>
-  `;
+  `
 
   // Wordfence
-  const wordfenceData = window.struckData.wordfence_logs;
+  const wordfenceData = window.struckData.wordfence_logs
 
   // if (wordfenceData) {
-  const wordfence = document.createElement("div");
-  wordfence.style.marginTop = "20px";
-  wordfence.style.paddingTop = "20px";
+  const wordfence = document.createElement("div")
+  wordfence.style.marginTop = "20px"
+  wordfence.style.paddingTop = "20px"
   wordfence.innerHTML = `${
     wordfenceData?.issues !== 0 &&
     wordfenceData?.issues?.new &&
@@ -1821,9 +1846,9 @@ async function exportToPDF() {
         : "No scan has been run lately"
     }</b></p>`
       : ""
-  }`;
+  }`
 
-  const wordfenceTableContainer = document.createElement("div");
+  const wordfenceTableContainer = document.createElement("div")
   wordfenceTableContainer.innerHTML = `${
     wordfenceData?.issues !== 0 &&
     wordfenceData?.issues?.new &&
@@ -1898,21 +1923,21 @@ async function exportToPDF() {
     </table>
   `
       : ""
-  }`;
+  }`
   // }
 
   //   Page Speed Heading
-  const pageSpeedDataHeading = document.createElement("div");
-  pageSpeedDataHeading.style.marginTop = "20px";
-  pageSpeedDataHeading.style.paddingTop = "20px";
+  const pageSpeedDataHeading = document.createElement("div")
+  pageSpeedDataHeading.style.marginTop = "20px"
+  pageSpeedDataHeading.style.paddingTop = "20px"
   pageSpeedDataHeading.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
-  `;
+  `
 
   // Page Speed Data
-  const pageSpeedData = document.createElement("div");
-  pageSpeedData.style.marginBottom = "20px";
-  pageSpeedData.style.paddingTop = "20px";
+  const pageSpeedData = document.createElement("div")
+  pageSpeedData.style.marginBottom = "20px"
+  pageSpeedData.style.paddingTop = "20px"
   pageSpeedData.innerHTML = !isOn.value
     ? ""
     : `
@@ -2157,19 +2182,19 @@ async function exportToPDF() {
                 </div>
             </div>
         </div>
-    `;
+    `
 
   // Recommendations
-  const recommendations = document.createElement("div");
-  recommendations.style.marginTop = "20px";
-  recommendations.style.paddingTop = "20px";
+  const recommendations = document.createElement("div")
+  recommendations.style.marginTop = "20px"
+  recommendations.style.paddingTop = "20px"
   recommendations.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
     <p>${struckLogs.value.recommendations}</p>
-  `;
+  `
 
   // Footer
-  const footer = document.createElement("div");
+  const footer = document.createElement("div")
   footer.innerHTML = `
     <div
     style="
@@ -2199,39 +2224,39 @@ async function exportToPDF() {
             </tr>
         </table>
     </div>
-  `;
-  footer.style.position = "relative";
-  footer.style.marginTop = "30px";
+  `
+  footer.style.position = "relative"
+  footer.style.marginTop = "30px"
 
   // Appends
-  wrapperElement.appendChild(header);
-  wrapperElement.appendChild(title);
-  wrapperElement.appendChild(projectSummary);
+  wrapperElement.appendChild(header)
+  wrapperElement.appendChild(title)
+  wrapperElement.appendChild(projectSummary)
   if (struckLogs.value.summary) {
-    wrapperElement.appendChild(statusSummary);
+    wrapperElement.appendChild(statusSummary)
   }
-  wrapperElement.appendChild(projectOverview);
-  wrapperElement.appendChild(logsTableContainer);
-  wrapperElement.appendChild(installedPluginsHeader);
-  wrapperElement.appendChild(pluginsTableContainer);
-  wrapperElement.appendChild(wordfence);
-  wrapperElement.appendChild(wordfenceTableContainer);
+  wrapperElement.appendChild(projectOverview)
+  wrapperElement.appendChild(logsTableContainer)
+  wrapperElement.appendChild(installedPluginsHeader)
+  wrapperElement.appendChild(pluginsTableContainer)
+  wrapperElement.appendChild(wordfence)
+  wrapperElement.appendChild(wordfenceTableContainer)
 
   if (isOn.value) {
-    wrapperElement.appendChild(pageSpeedDataHeading);
-    wrapperElement.appendChild(pageSpeedData);
+    wrapperElement.appendChild(pageSpeedDataHeading)
+    wrapperElement.appendChild(pageSpeedData)
   }
 
   if (struckLogs.value.recommendations) {
-    wrapperElement.appendChild(recommendations);
+    wrapperElement.appendChild(recommendations)
   }
-  wrapperElement.appendChild(footer);
+  wrapperElement.appendChild(footer)
 
-  const exportedDocument = document.querySelector(".export");
+  const exportedDocument = document.querySelector(".export")
 
-  exportedDocument.appendChild(wrapperElement);
+  exportedDocument.appendChild(wrapperElement)
 
-  const { width, height } = exportedDocument.getBoundingClientRect();
+  const { width, height } = exportedDocument.getBoundingClientRect()
 
   // Save
   const options = {
@@ -2251,26 +2276,35 @@ async function exportToPDF() {
       format: [width, height + height * 0.35],
       orientation: "portrait",
     },
-  };
+  }
 
-  await html2pdf().set(options).from(exportedDocument).save();
-  exportedDocument.innerHTML = "";
-  loading.value = false;
-  closestruckLogsModal();
+  await html2pdf().set(options).from(exportedDocument).save()
+  exportedDocument.innerHTML = ""
+  loading.value = false
+  closestruckLogsModal()
 }
 
 onMounted(() => {
-  fetchUsers();
-  fetchLogs(offset.value, limit.value);
-});
+  fetchUsers()
+  fetchLogs(offset.value, limit.value)
+})
 </script>
-
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style>
+.multiselect__tags input#user {
+  display: none;
+}
+.multiselect__content-wrapper {
+  box-shadow: -4px 9px 14px 9px #0000001c;
+}
+</style>
 <style scoped>
 @keyframes pulse {
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -2291,11 +2325,14 @@ onMounted(() => {
   }
 
   &.on {
-    background-color: #4caf50; /* Green */
+    background-color: #4caf50;
+    /* Green */
     color: white;
   }
+
   &.off {
-    background-color: #f44336; /* Red */
+    background-color: #f44336;
+    /* Red */
     color: white;
 
     &:after {

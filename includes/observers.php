@@ -335,7 +335,7 @@ class StruckObserver
       'action' => $type,
       'action_description' => $message,
       'user_id' => $user->exists() ? $user->ID : 0,
-      'user_name' => $user->exists() ? $user->user_login : 'WordPress',
+      'user_name' => $user->exists() ? $user->display_name : 'WordPress',
     );
 
     $this->log_action($entry);
