@@ -19,9 +19,7 @@
                 <h3 class="text-lg font-semibold text-slate-800">
                   Site maintenance report
                 </h3>
-                <p class="text-slate-500">
-                  Review each log or download the file
-                </p>
+                <p class="text-slate-500">Review each log or download a copy</p>
               </div>
 
               <div class="flex flex-row gap-4 items-center">
@@ -49,7 +47,7 @@
               <div class="flex items-center gap-2 self-end">
                 <button
                   @click="showModal = true"
-                  class="bg-green-500/20 border border-green-900 font-bold text-green-900 px-4 py-2 rounded"
+                  class="px-4 py-2 border min-h-[35px] border-blue-900 text-blue-900 rounded hover:text-blue-700 hover:border-blue-700 focus:outline-none"
                 >
                   Add Manual Entry
                 </button>
@@ -88,7 +86,7 @@
                     <div class="flex justify-end gap-2">
                       <button
                         @click="submitEntry"
-                        class="bg-green-500/20 border border-green-900 font-bold text-green-900 px-4 py-2 rounded flex flex-row gap-2"
+                        class="bg-blue-500 border-none font-bold text-white px-4 py-2 rounded flex flex-row gap-2"
                       >
                         <div v-if="loading" role="status">
                           <svg
@@ -113,7 +111,7 @@
                       </button>
                       <button
                         @click="showModal = false"
-                        class="bg-gray-300 px-4 py-2 rounded"
+                        class="bg-red-400 border border-none font-bold text-white px-4 py-2 rounded flex flex-row gap-2"
                       >
                         Cancel
                       </button>
@@ -130,7 +128,7 @@
                 />
                 <button
                   @click="openstruckLogsModal()"
-                  class="px-4 py-2 border min-h-[35px] border-green-900 text-green-900 rounded hover:text-green-700 hover:border-green-700 focus:outline-none"
+                  class="bg-green-500/20 border border-green-900 font-bold text-green-900 px-4 py-2 rounded"
                 >
                   Export
                 </button>
@@ -1259,7 +1257,7 @@
         <button
           @click="exportToPDF"
           :disabled="loading"
-          class="flex w-fit self-end items-center gap-4 text-white bg-blue-700 disabled:bg-gray-400 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
+          class="flex w-fit self-end items-center gap-4 text-white bg-green-700 disabled:bg-gray-400 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
         >
           <div v-if="loading" role="status">
             <svg
@@ -2061,14 +2059,34 @@ async function exportToPDF() {
 
         </style>
         <div style="display: flex; flex-direction: row; column-gap: 40px">
-            <div>
-                <img src="${
-                  window.struckData.page_speed_data.lighthouseResult.audits[
-                    `final-screenshot`
-                  ].details.data
-                }"/>
+            <div class=" w-6/12">
+                <div class="flex flex-col">
+                    <h3 class="font-bold text-lg mb-2">Metrics breakdown:</h3>
+                    <div class="grid grid-cols-1 gap-2">
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <h4 class="font-bold mb-1">Performance</h4>
+                          <p>This is the overall score that Google gives your webpage based on how fast and smooth it feels to users.</p>
+                        </div>
+                        <div>
+                          <h4 class="font-bold mb-1">Comulative Layout Shift</h4>
+                          <p>This measures how much the page content moves around while it's loading. A low CLS means the page is stable as it loads.</p>
+                        </div>    
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <h4 class="font-bold mb-1">First Contentful Paint</h4>
+                          <p>This is the time it takes for the first piece of content to appear on the screen after someone starts loading the page.</p>
+                        </div>
+                        <div>
+                          <h4 class="font-bold mb-1">Largest Contentful Paint</h4>
+                          <p>This measures how long it takes for the biggest visible element (like a Hero section or text) to appear.</p>
+                        </div> 
+                      </div>
+                    </div>
+                </div>
             </div>
-            <div style="display: flex; flex-direction: row; flex: 1; flex-wrap: wrap; align-items: center">
+            <div class="flex flex-wrap w-6/12 gap-4 items-center">
                 <div class="time-breakdown-chart ${scoreColor(
                   window.struckData.page_speed_data.lighthouseResult.categories
                     .performance.score * 100

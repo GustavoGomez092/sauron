@@ -120,9 +120,10 @@ class StruckObserver
       $this->_recordLocalEvent(self::SITE_MAIL_SEND_FAILED['action'], self::SITE_MAIL_SEND_FAILED['description']);
     });
 
-    $auditLog->_addObserver('wp_mail', function () { //Mail sent
-      $this->_recordLocalEvent(self::SITE_MAIL_SENT['action'], self::SITE_MAIL_SENT['description']);
-    });
+    // Uncomment this if you want to log all emails sent
+    // $auditLog->_addObserver('wp_mail', function () { //Mail sent
+    //   $this->_recordLocalEvent(self::SITE_MAIL_SENT['action'], self::SITE_MAIL_SENT['description']);
+    // });
 
     $auditLog->_addObserver('update_option_admin_email', function () { // admin email
       $this->_recordLocalEvent(self::SITE_OPTION_ADMIN_EMAIL['action'], self::SITE_OPTION_ADMIN_EMAIL['description']);
