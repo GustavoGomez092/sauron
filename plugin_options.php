@@ -239,8 +239,8 @@ class struck_plugin_options
         [
           'key' => 'field_05221226c93c6c',
           'label' => 'Company Address',
-          'name' => 'company-address',
-          'graphql_field_name' => 'company-address',
+          'name' => 'company_address',
+          'graphql_field_name' => 'company_address',
           'show_in_graphql' => 1,
           'graphql_description' => '',
           'graphql_non_null' => 0,
@@ -259,6 +259,7 @@ class struck_plugin_options
               'key' => 'field_67928ef91b68e',
               'label' => 'Address Information',
               'name' => 'address_information',
+              'graphql_field_name' => 'address_information',
               'aria-label' => '',
               'type' => 'wysiwyg',
               'instructions' => '',
@@ -427,33 +428,33 @@ class struck_plugin_options
     function settings_js()
     {
       ?>
-<script>
-acf.addAction('ready', function($el) {
-  // Check if we're on the specific options page
-  if (acf.get('screen') !== 'options') return;
+      <script>
+        acf.addAction('ready', function ($el) {
+          // Check if we're on the specific options page
+          if (acf.get('screen') !== 'options') return;
 
-  // Optional: Check a specific options page ID (e.g., options-general, options-theme)
-  if (acf.get('post_id') !== 'options') return; // or 'options_custom_name'
+          // Optional: Check a specific options page ID (e.g., options-general, options-theme)
+          if (acf.get('post_id') !== 'options') return; // or 'options_custom_name'
 
-  const field = acf.getField('field_bed26625a645f6');
+          const field = acf.getField('field_bed26625a645f6');
 
-  const currentColorVal = field.val();
+          const currentColorVal = field.val();
 
-  const targetBG = document.querySelector(
-    '.acf-field.acf-field-image.acf-field-b6662c545d19c5 > div > div > div > img');
+          const targetBG = document.querySelector(
+            '.acf-field.acf-field-image.acf-field-b6662c545d19c5 > div > div > div > img');
 
-  targetBG.style.padding = '20px';
+          targetBG.style.padding = '20px';
 
-  if (field) {
-    targetBG.style.backgroundColor = currentColorVal;
-    field.on('change', function(e) {
-      var newColor = field.val();
-      targetBG.style.backgroundColor = newColor;
-    });
-  }
-});
-</script>
-<?php
+          if (field) {
+            targetBG.style.backgroundColor = currentColorVal;
+            field.on('change', function (e) {
+              var newColor = field.val();
+              targetBG.style.backgroundColor = newColor;
+            });
+          }
+        });
+      </script>
+      <?php
     }
   }
 

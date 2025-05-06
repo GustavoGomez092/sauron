@@ -3,15 +3,7 @@
     <div
       class="relative flex flex-col w-full h-full text-slate-700 bg-white shadow-md rounded-xl"
     >
-      <template
-        v-if="
-          settingsData &&
-          settingsData.color_skin &&
-          settingsData.company_logo?.url &&
-          settingsData.address_information &&
-          settingsData.contact_information
-        "
-      >
+      <template v-if="hasRequiredSettings(settingsData)">
         <div class="relative mx-4 mt-4">
           <div class="flex items-center justify-between">
             <div class="flex flex-row gap-7 items-center">
@@ -1326,6 +1318,44 @@ const selectedOption = ref("")
 const comment = ref("")
 const { translateAction, renderColor } = useActions()
 
+function hasRequiredSettings(settingsData) {
+  if (!settingsData || typeof settingsData !== "object") return false
+
+  // Define each “path” of keys we want to check
+  const requiredPaths = [
+    ["visual_identity", "color_skin"],
+    ["visual_identity", "company_logo", "url"],
+    ["company_address", "address_information"],
+    ["contact_information"],
+  ]
+
+  return requiredPaths.every((path) => {
+    let obj = settingsData
+
+    // Walk the path, checking existence at each step
+    for (const key of path) {
+      if (
+        obj == null || // catches null/undefined
+        !Object.prototype.hasOwnProperty.call(obj, key) // missing property
+      ) {
+        return false
+      }
+      obj = obj[key]
+    }
+
+    // At this point, `obj` is the value at the end of the path.
+    // Reject null/undefined
+    if (obj == null) return false
+
+    // If it’s a string, reject empty or whitespace-only
+    if (typeof obj === "string" && obj.trim() === "") return false
+
+    // (You could add more type‐specific checks here if needed.)
+
+    return true
+  })
+}
+
 const closeMultiSelect = () => {
   console.log(multiSelect.value)
   multiSelect.value.deactivate()
@@ -1520,7 +1550,7 @@ function wc_hex_is_light(color) {
   return brightness > 155
 }
 
-const backgroundColor = settingsData.color_skin
+const backgroundColor = settingsData.visual_identity.color_skin
 const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff"
 
 function scoreColor(score) {
@@ -1572,7 +1602,7 @@ async function exportToPDF() {
         left: 0;
         right: 0;
         font-size: 10px;
-        background-color: ${settingsData.color_skin};
+        background-color: ${settingsData.visual_identity.color_skin};
         text-align: center;
         padding: 0px;
       ">
@@ -1580,13 +1610,13 @@ async function exportToPDF() {
               <tr>
                   <td>
                       <div style="color: ${textColor} !important; z-index: 1; text-align: left">
-                          <div>${settingsData.address_information}</div>
+                          <div>${settingsData.company_address.address_information}</div>
                       </div>
                   </td>
                   <td style="text-align: right">
 
                       <div style="z-index: 1; text-align: right">
-                          <img style="width: 180px; height: auto" src="${settingsData?.company_logo?.url}"/>
+                          <img style="width: 180px; height: auto" src="${settingsData?.visual_identity.company_logo?.url}"/>
                       </div>
                   </td>
               </tr>
@@ -1602,7 +1632,7 @@ async function exportToPDF() {
   title.style.textAlign = "left"
   title.style.fontSize = "18px"
   title.style.marginBottom = "20px"
-  title.style.borderBottom = `5px solid ${settingsData.color_skin}`
+  title.style.borderBottom = `5px solid ${settingsData.visual_identity.color_skin}`
 
   // Information
   const projectSummary = document.createElement("div")
@@ -1635,7 +1665,7 @@ async function exportToPDF() {
 
   projectSummary.innerHTML = `
   <div style="border-bottom: 1px solid ${
-    settingsData.color_skin
+    settingsData.visual_identity.color_skin
   }; margin-bottom: 10px; padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center;">
     <h3 style="margin: 0;">Project Information</h3>
     <p style="margin: 0;"><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
@@ -1659,7 +1689,7 @@ async function exportToPDF() {
   statusSummary.style.marginBottom = "20px"
   statusSummary.style.paddingTop = "20px"
   statusSummary.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
     <p>${struckLogs.value.summary}</p>
   `
 
@@ -1668,7 +1698,7 @@ async function exportToPDF() {
   projectOverview.style.marginBottom = "20px"
   projectOverview.style.paddingTop = "20px"
   projectOverview.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
   `
 
   // const tableElement = document.getElementById("export-table");
@@ -1790,7 +1820,7 @@ async function exportToPDF() {
   installedPluginsHeader.style.marginBottom = "20px"
   installedPluginsHeader.style.paddingTop = "20px"
   installedPluginsHeader.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
   `
 
   const pluginsTableContainer = document.createElement("div")
@@ -1929,7 +1959,7 @@ async function exportToPDF() {
   pageSpeedDataHeading.style.marginTop = "20px"
   pageSpeedDataHeading.style.paddingTop = "20px"
   pageSpeedDataHeading.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
   `
 
   // Page Speed Data
@@ -2207,7 +2237,7 @@ async function exportToPDF() {
   recommendations.style.marginTop = "20px"
   recommendations.style.paddingTop = "20px"
   recommendations.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
+    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
     <p>${struckLogs.value.recommendations}</p>
   `
 
