@@ -18,6 +18,8 @@ class struck_plugin_options
     add_action('admin_enqueue_scripts', array($this, 'acf_settings_css'));
   }
 
+
+
   public function register_plugin_settings()
   {
     register_setting('struck-settings-group', 'struck-plugin');
@@ -422,14 +424,18 @@ class struck_plugin_options
 
     function settings_css()
     {
-      wp_enqueue_style('struck-settings-acf-css', plugin_dir_url(__FILE__) . '/index.css', [], '1.0.0');
+      $screen = get_current_screen();
+
+      if ($screen && $screen->id === 'struck-logger_page_struck-settings') {
+        wp_enqueue_style('struck-settings-acf-css', plugin_dir_url(__FILE__) . '/index.css', [], '1.0.0');
+      }
     }
 
     function settings_js()
     {
-      ?>
+?>
       <script>
-        acf.addAction('ready', function ($el) {
+        acf.addAction('ready', function($el) {
           // Check if we're on the specific options page
           if (acf.get('screen') !== 'options') return;
 
@@ -447,14 +453,14 @@ class struck_plugin_options
 
           if (field) {
             targetBG.style.backgroundColor = currentColorVal;
-            field.on('change', function (e) {
+            field.on('change', function(e) {
               var newColor = field.val();
               targetBG.style.backgroundColor = newColor;
             });
           }
         });
       </script>
-      <?php
+<?php
     }
   }
 
