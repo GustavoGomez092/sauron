@@ -63,7 +63,7 @@ class struck_plugin_options
         array(
           'key' => 'field_67928ef91b68e',
           'label' => 'Address Information',
-          'name' => 'address_information',
+          'name' => 'company_information',
           'aria-label' => '',
           'type' => 'wysiwyg',
           'instructions' => '',

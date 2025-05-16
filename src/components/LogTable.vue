@@ -1286,51 +1286,53 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue"
-import useActions from "../../scripts/useActions"
-import html2pdf from "html2pdf.js"
-import axios from "axios"
-import Multiselect from "vue-multiselect"
-import { onClickOutside } from "@vueuse/core"
-import { useTemplateRef } from "vue"
+import { ref, computed, watch, onMounted } from "vue";
+import useActions from "../../scripts/useActions";
+import html2pdf from "html2pdf.js";
+import axios from "axios";
+import Multiselect from "vue-multiselect";
+import { onClickOutside } from "@vueuse/core";
+import { useTemplateRef } from "vue";
 
-const showstruckLogsModal = ref(false)
-const searchQuery = ref("")
-const isSearching = ref(false)
-const loading = ref(false)
-const settingsData = window.struckData.plugin_options
-const users = ref([])
-const reportLogs = ref([])
-const logs = ref([])
-const totalLogs = ref(0)
-const offset = ref(0)
-const limit = ref(10)
-const currentPage = ref(1)
+const showstruckLogsModal = ref(false);
+const searchQuery = ref("");
+const isSearching = ref(false);
+const loading = ref(false);
+const settingsData = window.struckData.plugin_options;
+const users = ref([]);
+const reportLogs = ref([]);
+const logs = ref([]);
+const totalLogs = ref(0);
+const offset = ref(0);
+const limit = ref(10);
+const currentPage = ref(1);
 const isOn = ref(
   window.struckData.plugin_options.export_settings.pageSpeed_on_export
-)
+);
 const isEmailOn = ref(
   window.struckData.plugin_options.export_settings.email_on_export
-)
-const showModal = ref(false)
-const multiSelect = useTemplateRef("multiRef")
-const selectedOption = ref("")
-const comment = ref("")
-const { translateAction, renderColor } = useActions()
+);
+const showModal = ref(false);
+const multiSelect = useTemplateRef("multiRef");
+const selectedOption = ref("");
+const comment = ref("");
+const { translateAction, renderColor } = useActions();
 
 function hasRequiredSettings(settingsData) {
-  if (!settingsData || typeof settingsData !== "object") return false
+  if (!settingsData || typeof settingsData !== "object") return false;
 
   // Define each “path” of keys we want to check
   const requiredPaths = [
+    ["visual_identity", "use_gradient_background"],
     ["visual_identity", "color_skin"],
+    ["visual_identity", "color_to"],
     ["visual_identity", "company_logo", "url"],
-    ["company_address", "address_information"],
+    ["company_name", "company_name"],
     ["contact_information"],
-  ]
+  ];
 
   return requiredPaths.every((path) => {
-    let obj = settingsData
+    let obj = settingsData;
 
     // Walk the path, checking existence at each step
     for (const key of path) {
@@ -1338,29 +1340,28 @@ function hasRequiredSettings(settingsData) {
         obj == null || // catches null/undefined
         !Object.prototype.hasOwnProperty.call(obj, key) // missing property
       ) {
-        return false
+        return false;
       }
-      obj = obj[key]
+      obj = obj[key];
     }
 
     // At this point, `obj` is the value at the end of the path.
     // Reject null/undefined
-    if (obj == null) return false
+    if (obj == null) return false;
 
     // If it’s a string, reject empty or whitespace-only
-    if (typeof obj === "string" && obj.trim() === "") return false
+    if (typeof obj === "string" && obj.trim() === "") return false;
 
     // (You could add more type‐specific checks here if needed.)
 
-    return true
-  })
+    return true;
+  });
 }
 
 const closeMultiSelect = () => {
-  console.log(multiSelect.value)
-  multiSelect.value.deactivate()
-}
-onClickOutside(multiSelect, closeMultiSelect)
+  multiSelect.value.deactivate();
+};
+onClickOutside(multiSelect, closeMultiSelect);
 
 const api = axios.create({
   baseURL: `/wp-json/struck/v1/`,
@@ -1370,10 +1371,10 @@ const api = axios.create({
     "X-WP-Nonce": window.wpApiSettings.nonce,
   },
   timeout: 100000,
-})
+});
 
 const submitEntry = () => {
-  loading.value = true
+  loading.value = true;
 
   if (comment.value && selectedOption.value) {
     api
@@ -1382,46 +1383,46 @@ const submitEntry = () => {
         action_taken: comment.value,
       })
       .then(() => {
-        showModal.value = false
-        comment.value = ""
-        selectedOption.value = ""
-        offset.value = 0
-        limit.value = 10
-        currentPage.value = 1
-        fetchLogs(offset.value, limit.value)
-        loading.value = false
+        showModal.value = false;
+        comment.value = "";
+        selectedOption.value = "";
+        offset.value = 0;
+        limit.value = 10;
+        currentPage.value = 1;
+        fetchLogs(offset.value, limit.value);
+        loading.value = false;
       })
       .catch((error) => {
-        console.error("Error adding manual entry:", error)
-        alert("Failed to add manual entry. Please try again.")
-      })
+        console.error("Error adding manual entry:", error);
+        alert("Failed to add manual entry. Please try again.");
+      });
   }
-}
+};
 
 const getPagespeedData = async () => {
-  loading.value = true
-  const response = await api.get("pagespeed")
-  window.struckData.page_speed_data = response.data
-}
+  loading.value = true;
+  const response = await api.get("pagespeed");
+  window.struckData.page_speed_data = response.data;
+};
 
 const fetchUsers = async () => {
   try {
-    const response = await api.get("users")
-    response.data.unshift({ id: "0", name: "System events", email: "" })
-    response.data.unshift({ id: "*", name: "All users", email: "" })
+    const response = await api.get("users");
+    response.data.unshift({ id: "0", name: "System events", email: "" });
+    response.data.unshift({ id: "*", name: "All users", email: "" });
     const finalArray = response.data.map((user) => {
       return {
         id: user.id,
         name: user.name,
         email: user.email,
         code: user.email.substring(0, 2) + Math.floor(Math.random() * 10000000),
-      }
-    })
-    users.value = finalArray
+      };
+    });
+    users.value = finalArray;
   } catch (error) {
-    console.error("Error Fetching the logs:", error)
+    console.error("Error Fetching the logs:", error);
   }
-}
+};
 
 const fetchLogs = async (
   offset = 0,
@@ -1431,7 +1432,7 @@ const fetchLogs = async (
   endDate = null,
   report = false
 ) => {
-  isSearching.value = true
+  isSearching.value = true;
 
   try {
     const response = await api.get("logs", {
@@ -1442,42 +1443,42 @@ const fetchLogs = async (
         start_date: startDate,
         end_date: endDate,
       },
-    })
+    });
 
-    const logsResponse = await api.get("total")
+    const logsResponse = await api.get("total");
 
     if (report) {
-      reportLogs.value = response.data
+      reportLogs.value = response.data;
     } else {
-      logs.value = response.data
-      totalLogs.value = logsResponse.data
+      logs.value = response.data;
+      totalLogs.value = logsResponse.data;
     }
 
     setTimeout(() => {
-      isSearching.value = false
-    }, 500)
+      isSearching.value = false;
+    }, 500);
   } catch (error) {
-    console.error("Error Fetching the logs:", error)
+    console.error("Error Fetching the logs:", error);
   }
-}
+};
 
 const nextPage = () => {
   if (offset.value + limit.value < totalLogs.value) {
-    currentPage.value += 1
-    offset.value += limit.value
-    fetchLogs(offset.value, limit.value)
+    currentPage.value += 1;
+    offset.value += limit.value;
+    fetchLogs(offset.value, limit.value);
   }
-}
+};
 
 const prevPage = () => {
   if (offset.value > 0) {
-    currentPage.value -= 1
-    offset.value -= limit.value
-    fetchLogs(offset.value, limit.value)
+    currentPage.value -= 1;
+    offset.value -= limit.value;
+    fetchLogs(offset.value, limit.value);
   }
-}
+};
 
-const today = new Date()
+const today = new Date();
 
 const struckLogs = ref({
   // today's date
@@ -1498,18 +1499,11 @@ const struckLogs = ref({
   users: [],
   summary: "",
   recommendations: "",
-})
-
-// watch for changes in struckLogs
-watch(struckLogs, (newValue) => {
-  if (newValue) {
-    console.log("struckLogs changed:", newValue)
-  }
-})
+});
 
 const filteredLogs = computed(() => {
   return logs.value.filter((user) => {
-    const search = searchQuery.value.toLowerCase()
+    const search = searchQuery.value.toLowerCase();
     return (
       user.user_name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
@@ -1517,58 +1511,58 @@ const filteredLogs = computed(() => {
       user.action_type.toLowerCase().includes(search) ||
       user.action_taken.toLowerCase().includes(search) ||
       user.action_time.toLowerCase().includes(search)
-    )
-  })
-})
+    );
+  });
+});
 
 watch(searchQuery, (newValue) => {
   if (newValue) {
-    isSearching.value = true
+    isSearching.value = true;
     setTimeout(() => {
-      isSearching.value = false
-    }, 500)
+      isSearching.value = false;
+    }, 500);
   } else {
-    isSearching.value = false
+    isSearching.value = false;
   }
-})
+});
 
 function openstruckLogsModal() {
-  showstruckLogsModal.value = true
+  showstruckLogsModal.value = true;
 }
 
 function closestruckLogsModal() {
-  showstruckLogsModal.value = false
+  showstruckLogsModal.value = false;
 }
 
 function wc_hex_is_light(color) {
-  if (!color) return
-  const hex = color.replace("#", "")
-  const c_r = parseInt(hex.substring(0, 2), 16)
-  const c_g = parseInt(hex.substring(2, 4), 16)
-  const c_b = parseInt(hex.substring(4, 6), 16)
-  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000
-  return brightness > 155
+  if (!color) return;
+  const hex = color.replace("#", "");
+  const c_r = parseInt(hex.substring(0, 2), 16);
+  const c_g = parseInt(hex.substring(2, 4), 16);
+  const c_b = parseInt(hex.substring(4, 6), 16);
+  const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
+  return brightness > 155;
 }
 
-const backgroundColor = settingsData.visual_identity.color_skin
-const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff"
+const backgroundColor = settingsData.visual_identity.color_skin;
+const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff";
 
 function scoreColor(score) {
   if (score >= 85 && score <= 100) {
-    return "good"
+    return "good";
   } else if (score >= 65 && score < 85) {
-    return "medium"
+    return "medium";
   } else if (score >= 0 && score < 65) {
-    return "bad"
+    return "bad";
   } else {
-    return ""
+    return "";
   }
 }
 async function exportToPDF() {
   if (isOn.value) {
-    await getPagespeedData()
+    await getPagespeedData();
   } else {
-    loading.value = true
+    loading.value = true;
   }
 
   await fetchLogs(
@@ -1578,23 +1572,23 @@ async function exportToPDF() {
     struckLogs.value.startDate,
     struckLogs.value.endDate,
     true
-  )
+  );
 
-  const pluginsData = window.struckData.installed_plugins || []
+  const pluginsData = window.struckData.installed_plugins || [];
 
-  const wrapperElement = document.createElement("div")
-  wrapperElement.style.fontFamily = "Arial, sans-serif"
-  wrapperElement.style.fontSize = "12px"
-  wrapperElement.style.lineHeight = "1.5"
-  wrapperElement.classList.add = "main-container"
+  const wrapperElement = document.createElement("div");
+  wrapperElement.style.fontFamily = "Arial, sans-serif";
+  wrapperElement.style.fontSize = "12px";
+  wrapperElement.style.lineHeight = "1.5";
+  wrapperElement.classList.add = "main-container";
 
   // Header
-  const header = document.createElement("div")
-  header.style.alignItems = "center"
-  header.style.marginBottom = "20px"
-  header.style.padding = "10px 0px"
+  const header = document.createElement("div");
+  header.style.alignItems = "center";
+  header.style.marginBottom = "20px";
+  header.style.padding = "10px 0px";
 
-  const companyInfo = document.createElement("div")
+  const companyInfo = document.createElement("div");
   companyInfo.innerHTML = `
       <div style="
         position: relative;
@@ -1602,7 +1596,11 @@ async function exportToPDF() {
         left: 0;
         right: 0;
         font-size: 10px;
-        background-color: ${settingsData.visual_identity.color_skin};
+        background: ${
+          settingsData?.visual_identity.use_gradient_background
+            ? `linear-gradient(to right, ${settingsData.visual_identity.color_skin}, ${settingsData.visual_identity.color_to})`
+            : settingsData?.visual_identity.color_skin
+        };
         text-align: center;
         padding: 0px;
       ">
@@ -1610,36 +1608,40 @@ async function exportToPDF() {
               <tr>
                   <td>
                       <div style="color: ${textColor} !important; z-index: 1; text-align: left">
-                          <div>${settingsData.company_address.address_information}</div>
+                          <p style="font-size: 15px; color: #ffffff;">${
+                            settingsData.company_name.company_name
+                          }</p>
                       </div>
                   </td>
                   <td style="text-align: right">
 
-                      <div style="z-index: 1; text-align: right">
-                          <img style="width: 180px; height: auto" src="${settingsData?.visual_identity.company_logo?.url}"/>
+                      <div style="z-index: 1; text-align: center; width: 160px; margin-right: 0px; margin-left: auto;">
+                          <img style="width: auto; margin: 0 auto; height: auto; object-fit: contain;" src="${
+                            settingsData?.visual_identity.company_logo?.url
+                          }"/>
                       </div>
                   </td>
               </tr>
           </table>
       </div>
-  `
+  `;
 
-  header.appendChild(companyInfo)
+  header.appendChild(companyInfo);
 
   // Title
-  const title = document.createElement("h1")
-  title.innerText = "Website Maintenance and Core Vitals Report"
-  title.style.textAlign = "left"
-  title.style.fontSize = "18px"
-  title.style.marginBottom = "20px"
-  title.style.borderBottom = `5px solid ${settingsData.visual_identity.color_skin}`
+  const title = document.createElement("h1");
+  title.innerText = "Website Maintenance and Core Vitals Report";
+  title.style.textAlign = "left";
+  title.style.fontSize = "18px";
+  title.style.marginBottom = "20px";
+  title.style.borderBottom = `5px solid ${settingsData.visual_identity.color_skin}`;
 
   // Information
-  const projectSummary = document.createElement("div")
-  projectSummary.style.marginBottom = "20px"
-  projectSummary.style.paddingTop = "20px"
+  const projectSummary = document.createElement("div");
+  projectSummary.style.marginBottom = "20px";
+  projectSummary.style.paddingTop = "20px";
 
-  let contactRows = ""
+  let contactRows = "";
   settingsData?.contact_information.forEach((contact, index) => {
     contactRows += `
     <td style="vertical-align: top; padding-right: 20px; ${
@@ -1653,15 +1655,15 @@ async function exportToPDF() {
         ${contact.contact_email}
       </a>
     </td>
-  `
-  })
+  `;
+  });
 
   // Wrap the cells in a single row
   const contactTable = `
   <table style="width: 100%; border-collapse: collapse;">
     <tr>${contactRows}</tr>
   </table>
-`
+`;
 
   projectSummary.innerHTML = `
   <div style="border-bottom: 1px solid ${
@@ -1682,30 +1684,30 @@ async function exportToPDF() {
     If you have any questions, concerns, or require clarification regarding the information provided in this report, please do not hesitate to contact us at the email addresses listed above. We are happy to assist and provide any additional details you may need.
   </p>
 </div>
-`
+`;
 
   // Summary
-  const statusSummary = document.createElement("div")
-  statusSummary.style.marginBottom = "20px"
-  statusSummary.style.paddingTop = "20px"
+  const statusSummary = document.createElement("div");
+  statusSummary.style.marginBottom = "20px";
+  statusSummary.style.paddingTop = "20px";
   statusSummary.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
     <p>${struckLogs.value.summary}</p>
-  `
+  `;
 
   // Table start
-  const projectOverview = document.createElement("div")
-  projectOverview.style.marginBottom = "20px"
-  projectOverview.style.paddingTop = "20px"
+  const projectOverview = document.createElement("div");
+  projectOverview.style.marginBottom = "20px";
+  projectOverview.style.paddingTop = "20px";
   projectOverview.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
-  `
+  `;
 
   // const tableElement = document.getElementById("export-table");
-  const logsTableContainer = document.createElement("div")
+  const logsTableContainer = document.createElement("div");
   if (!filteredLogs.value.length) {
-    alert("No data available to export.")
-    return
+    alert("No data available to export.");
+    return;
   }
 
   logsTableContainer.innerHTML = isEmailOn.value
@@ -1810,20 +1812,20 @@ async function exportToPDF() {
         .join("")}
     </tbody>
   </table>
-`
+`;
 
   // projectOverview.appendChild(clonedTable);
   // Table ends
 
   // Plugins Table
-  const installedPluginsHeader = document.createElement("div")
-  installedPluginsHeader.style.marginBottom = "20px"
-  installedPluginsHeader.style.paddingTop = "20px"
+  const installedPluginsHeader = document.createElement("div");
+  installedPluginsHeader.style.marginBottom = "20px";
+  installedPluginsHeader.style.paddingTop = "20px";
   installedPluginsHeader.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
-  `
+  `;
 
-  const pluginsTableContainer = document.createElement("div")
+  const pluginsTableContainer = document.createElement("div");
   pluginsTableContainer.innerHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
         <thead style="background-color: ${backgroundColor}; color: ${textColor}">
@@ -1853,15 +1855,15 @@ async function exportToPDF() {
           .join("")}
       </tbody>
     </table>
-  `
+  `;
 
   // Wordfence
-  const wordfenceData = window.struckData.wordfence_logs
+  const wordfenceData = window.struckData.wordfence_logs;
 
   // if (wordfenceData) {
-  const wordfence = document.createElement("div")
-  wordfence.style.marginTop = "20px"
-  wordfence.style.paddingTop = "20px"
+  const wordfence = document.createElement("div");
+  wordfence.style.marginTop = "20px";
+  wordfence.style.paddingTop = "20px";
   wordfence.innerHTML = `${
     wordfenceData?.issues !== 0 &&
     wordfenceData?.issues?.new &&
@@ -1874,9 +1876,9 @@ async function exportToPDF() {
         : "No scan has been run lately"
     }</b></p>`
       : ""
-  }`
+  }`;
 
-  const wordfenceTableContainer = document.createElement("div")
+  const wordfenceTableContainer = document.createElement("div");
   wordfenceTableContainer.innerHTML = `${
     wordfenceData?.issues !== 0 &&
     wordfenceData?.issues?.new &&
@@ -1951,21 +1953,21 @@ async function exportToPDF() {
     </table>
   `
       : ""
-  }`
+  }`;
   // }
 
   //   Page Speed Heading
-  const pageSpeedDataHeading = document.createElement("div")
-  pageSpeedDataHeading.style.marginTop = "20px"
-  pageSpeedDataHeading.style.paddingTop = "20px"
+  const pageSpeedDataHeading = document.createElement("div");
+  pageSpeedDataHeading.style.marginTop = "20px";
+  pageSpeedDataHeading.style.paddingTop = "20px";
   pageSpeedDataHeading.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
-  `
+  `;
 
   // Page Speed Data
-  const pageSpeedData = document.createElement("div")
-  pageSpeedData.style.marginBottom = "20px"
-  pageSpeedData.style.paddingTop = "20px"
+  const pageSpeedData = document.createElement("div");
+  pageSpeedData.style.marginBottom = "20px";
+  pageSpeedData.style.paddingTop = "20px";
   pageSpeedData.innerHTML = !isOn.value
     ? ""
     : `
@@ -2230,19 +2232,19 @@ async function exportToPDF() {
                 </div>
             </div>
         </div>
-    `
+    `;
 
   // Recommendations
-  const recommendations = document.createElement("div")
-  recommendations.style.marginTop = "20px"
-  recommendations.style.paddingTop = "20px"
+  const recommendations = document.createElement("div");
+  recommendations.style.marginTop = "20px";
+  recommendations.style.paddingTop = "20px";
   recommendations.innerHTML = `
     <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
     <p>${struckLogs.value.recommendations}</p>
-  `
+  `;
 
   // Footer
-  const footer = document.createElement("div")
+  const footer = document.createElement("div");
   footer.innerHTML = `
     <div
     style="
@@ -2251,60 +2253,60 @@ async function exportToPDF() {
       left: 0;
       right: 0;
       font-size: 10px;
-      color: #666666;
+      color: #000000;
       text-align: center;
       padding: 10px 0;
-      border-top: 1px solid #cccccc;
+      border-top: 2px solid #cccccc;
       margin-top: 100px;
     ">
         <table style="width: 100%; border-collapse: collapse;">
             <tr>
                 <td>
-                    <div style="color: #666666; z-index: 1; text-align: left">
+                    <div style="color: #000000; z-index: 1; text-align: left">
                         Developed by Struck
                     </div>
                 </td>
                 <td style:"text-align: right">
                     <div style="z-index: 1; text-align: right">
-                        <img style="width: 50px; height: auto"  src="data:image/png;base64,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" />
+                        <img style="width: auto; height: 14px" src="data:image/png;base64,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" />
                     </div>
                 </td>
             </tr>
         </table>
     </div>
-  `
-  footer.style.position = "relative"
-  footer.style.marginTop = "30px"
+  `;
+  footer.style.position = "relative";
+  footer.style.marginTop = "30px";
 
   // Appends
-  wrapperElement.appendChild(header)
-  wrapperElement.appendChild(title)
-  wrapperElement.appendChild(projectSummary)
+  wrapperElement.appendChild(header);
+  wrapperElement.appendChild(title);
+  wrapperElement.appendChild(projectSummary);
   if (struckLogs.value.summary) {
-    wrapperElement.appendChild(statusSummary)
+    wrapperElement.appendChild(statusSummary);
   }
-  wrapperElement.appendChild(projectOverview)
-  wrapperElement.appendChild(logsTableContainer)
-  wrapperElement.appendChild(installedPluginsHeader)
-  wrapperElement.appendChild(pluginsTableContainer)
-  wrapperElement.appendChild(wordfence)
-  wrapperElement.appendChild(wordfenceTableContainer)
+  wrapperElement.appendChild(projectOverview);
+  wrapperElement.appendChild(logsTableContainer);
+  wrapperElement.appendChild(installedPluginsHeader);
+  wrapperElement.appendChild(pluginsTableContainer);
+  wrapperElement.appendChild(wordfence);
+  wrapperElement.appendChild(wordfenceTableContainer);
 
   if (isOn.value) {
-    wrapperElement.appendChild(pageSpeedDataHeading)
-    wrapperElement.appendChild(pageSpeedData)
+    wrapperElement.appendChild(pageSpeedDataHeading);
+    wrapperElement.appendChild(pageSpeedData);
   }
 
   if (struckLogs.value.recommendations) {
-    wrapperElement.appendChild(recommendations)
+    wrapperElement.appendChild(recommendations);
   }
-  wrapperElement.appendChild(footer)
+  wrapperElement.appendChild(footer);
 
-  const exportedDocument = document.querySelector(".export")
+  const exportedDocument = document.querySelector(".export");
 
-  exportedDocument.appendChild(wrapperElement)
+  exportedDocument.appendChild(wrapperElement);
 
-  const { width, height } = exportedDocument.getBoundingClientRect()
+  const { width, height } = exportedDocument.getBoundingClientRect();
 
   // Save
   const options = {
@@ -2324,18 +2326,18 @@ async function exportToPDF() {
       format: [width, height + height * 0.35],
       orientation: "portrait",
     },
-  }
+  };
 
-  await html2pdf().set(options).from(exportedDocument).save()
-  exportedDocument.innerHTML = ""
-  loading.value = false
-  closestruckLogsModal()
+  await html2pdf().set(options).from(exportedDocument).save();
+  exportedDocument.innerHTML = "";
+  loading.value = false;
+  closestruckLogsModal();
 }
 
 onMounted(() => {
-  fetchUsers()
-  fetchLogs(offset.value, limit.value)
-})
+  fetchUsers();
+  fetchLogs(offset.value, limit.value);
+});
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
