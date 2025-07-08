@@ -206,10 +206,10 @@
                       <div
                         :class="
                           renderColor(user.action_type) === 'green'
-                            ? 'bg-green-500/20 text-green-900'
+                            ? 'bg-green-500/20 border border-green-900 text-green-900'
                             : renderColor(user.action_type) === 'red'
-                            ? 'bg-red-50 text-red-900'
-                            : 'bg-yellow-50 text-yellow-900'
+                            ? 'bg-red-50 border border-red-900 text-red-900'
+                            : 'bg-yellow-100 border border-yellow-900 text-yellow-900'
                         "
                         class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap"
                       >
@@ -1323,11 +1323,7 @@ function hasRequiredSettings(settingsData) {
 
   // Define each “path” of keys we want to check
   const requiredPaths = [
-    ["visual_identity", "use_gradient_background"],
-    ["visual_identity", "color_skin"],
-    ["visual_identity", "color_to"],
     ["visual_identity", "company_logo", "url"],
-    ["company_name", "company_name"],
     ["contact_information"],
   ];
 
@@ -1544,7 +1540,7 @@ function wc_hex_is_light(color) {
   return brightness > 155;
 }
 
-const backgroundColor = settingsData.visual_identity.color_skin;
+const backgroundColor = "#0078FF";
 const textColor = wc_hex_is_light(backgroundColor) ? "#000" : "#fff";
 
 function scoreColor(score) {
@@ -1596,29 +1592,21 @@ async function exportToPDF() {
         left: 0;
         right: 0;
         font-size: 10px;
-        background: ${
-          settingsData?.visual_identity.use_gradient_background
-            ? `linear-gradient(to right, ${settingsData.visual_identity.color_skin}, ${settingsData.visual_identity.color_to})`
-            : settingsData?.visual_identity.color_skin
-        };
+        background: #0F1010;
         text-align: center;
         padding: 0px;
       ">
           <table style="width: 100%; border-collapse: collapse;" cellpadding="20">
               <tr>
                   <td>
-                      <div style="color: ${textColor} !important; z-index: 1; text-align: left">
-                          <p style="font-size: 15px; color: #ffffff;">${
-                            settingsData.company_name.company_name
-                          }</p>
+                     <div style="z-index: 1; text-align: center; width: 140px; margin-right: 0px; margin-left: auto;">
+                          <img style="width: 100%; max-width: 140px; margin: 0 auto; height: auto; object-fit: contain;" src="data:image/png;base64,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"/>
                       </div>
                   </td>
                   <td style="text-align: right">
 
                       <div style="z-index: 1; text-align: center; width: 160px; margin-right: 0px; margin-left: auto;">
-                          <img style="width: auto; margin: 0 auto; height: auto; object-fit: contain;" src="${
-                            settingsData?.visual_identity.company_logo?.url
-                          }"/>
+                          <img style="width: 100%; max-width: 160px; margin: 0 auto; height: auto; object-fit: contain;" src="${settingsData?.company_logo?.url}"/>
                       </div>
                   </td>
               </tr>
@@ -1634,7 +1622,7 @@ async function exportToPDF() {
   title.style.textAlign = "left";
   title.style.fontSize = "18px";
   title.style.marginBottom = "20px";
-  title.style.borderBottom = `5px solid ${settingsData.visual_identity.color_skin}`;
+  title.style.borderBottom = `5px solid #0F1010`;
 
   // Information
   const projectSummary = document.createElement("div");
@@ -1644,14 +1632,14 @@ async function exportToPDF() {
   let contactRows = "";
   settingsData?.contact_information.forEach((contact, index) => {
     contactRows += `
-    <td style="vertical-align: top; padding-right: 20px; ${
-      index !== 0 ? "border-left: 1px solid #ccc; padding-left: 20px;" : ""
+    <td style="vertical-align: top; padding-right: 20px; font-size: 10px; ${
+      index !== 0 ? "border-left: 1px solid #DFDFE5; padding-left: 20px;" : ""
     }">
       <strong>${contact.contact_type}:<br /></strong>
       ${contact.contact_name}<br />
 
       <strong>Contact Email:</strong>
-      <a href="mailto:${contact.contact_email}">
+      <a style="color: #0078FF;" href="mailto:${contact.contact_email}">
         ${contact.contact_email}
       </a>
     </td>
@@ -1666,21 +1654,19 @@ async function exportToPDF() {
 `;
 
   projectSummary.innerHTML = `
-  <div style="border-bottom: 1px solid ${
-    settingsData.visual_identity.color_skin
-  }; margin-bottom: 10px; padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center;">
-    <h3 style="margin: 0;">Project Information</h3>
-    <p style="margin: 0;"><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
+  <div style="border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center;">
+    <h3 style="margin: 0; font-size: 12px;">Project Information</h3>
+    <p style="margin: 0; font-size: 12px;"><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
   </div>
 
   ${contactTable}
 
-<div class="flex items-center px-2 pt-1 pb-2 mt-4 text-sm text-blue-800 rounded-lg bg-blue-50 text-blue-400" role="alert">
+<div style="background: #EEEDED;" class="flex items-center px-4 pt-1 pb-2 mt-10 text-sm text-blue-800 rounded-lg text-['#363939']" role="alert">
   <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
   </svg>
   <span class="sr-only">Info</span>
-  <p style="font-size: 12px; color: #555; margin-top: 1rem;">
+  <p style="font-size: 10px; color: #363939; margin-top: 1rem;">
     If you have any questions, concerns, or require clarification regarding the information provided in this report, please do not hesitate to contact us at the email addresses listed above. We are happy to assist and provide any additional details you may need.
   </p>
 </div>
@@ -1691,7 +1677,7 @@ async function exportToPDF() {
   statusSummary.style.marginBottom = "20px";
   statusSummary.style.paddingTop = "20px";
   statusSummary.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
+    <h3 style="font-size: 12px; border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 5px">Summary</h3>
     <p>${struckLogs.value.summary}</p>
   `;
 
@@ -1700,7 +1686,7 @@ async function exportToPDF() {
   projectOverview.style.marginBottom = "20px";
   projectOverview.style.paddingTop = "20px";
   projectOverview.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
+    <h3 style="font-size: 12px; border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 5px">Logs</h3>
   `;
 
   // const tableElement = document.getElementById("export-table");
@@ -1715,100 +1701,111 @@ async function exportToPDF() {
   <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
     <thead style="background-color: ${backgroundColor}; color: ${textColor}">
       <tr>
-        <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Email</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Role</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Action</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Action Taken</th>
-        <th style="border: 1px solid #ccc; padding: 8px; width: 120px;">Action Time</th>
+        <th style="border: 1px solid #DFDFE5; padding: 8px;">Name</th>
+        <th style="border: 1px solid #DFDFE5; padding: 8px;">Email</th>
+        <th style="border: 1px solid #DFDFE5; padding: 8px;">Role</th>
+        <th style="border: 1px solid #DFDFE5; padding: 8px;">Action</th>
+        <th style="border: 1px solid #DFDFE5; padding: 8px;">Action Taken</th>
+        <th style="border: 1px solid #DFDFE5; padding: 8px; width: 120px;">Action Time</th>
       </tr>
     </thead>
     <tbody>
       ${reportLogs.value
-        .map(
-          (log) => `
+        .map((log) => {
+          const customClass =
+            renderColor(log?.action_type) === "green"
+              ? "bg-green-500/20 border border-green-900 text-green-900"
+              : renderColor(log?.action_type) === "red"
+              ? "bg-red-50 border border-red-900 text-red-900"
+              : "bg-yellow-100 border border-yellow-900 text-yellow-900";
+          return `
           <tr>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.user_name || "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.email || "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.role || "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">
               <div class="w-max">
                 <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
-                  ${
-                    renderColor(log?.action_type) === "green"
-                      ? "bg-green-500/20 text-green-900"
-                      : renderColor(log?.action_type) === "red"
-                      ? "bg-red-50 text-red-900"
-                      : "bg-yellow-50 text-yellow-900"
-                  }">
+                  ${customClass}">
                   <span>${translateAction(log?.action_type)}</span>
                 </div>
               </div>
             </td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.action_taken || "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.action_time || "-"
             }</td>
           </tr>
-        `
-        )
+        `;
+        })
         .join("")}
     </tbody>
   </table>
 `
     : `
   <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
-    <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+    <thead style="color: ${textColor}">
       <tr>
-        <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Role</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Action</th>
-        <th style="border: 1px solid #ccc; padding: 8px;">Action Taken</th>
-        <th style="border: 1px solid #ccc; padding: 8px; width: 120px;">Action Time</th>
+        <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px; border-top-left-radius: 4px;">Name</th>
+        <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Role</th>
+        <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Action</th>
+        <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Action Taken</th>
+        <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px; width: 120px; border-top-right-radius: 4px;">Action Time</th>
       </tr>
     </thead>
     <tbody>
       ${reportLogs.value
-        .map(
-          (log) => `
+        .map((log, index) => {
+          const isLast = index === reportLogs.value.length - 1;
+          const customBorder =
+            renderColor(log?.action_type) === "green"
+              ? "#22543d"
+              : renderColor(log?.action_type) === "red"
+              ? "#7f1d1d"
+              : "#eba900";
+          return `
           <tr>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
-              log?.user_name || "-"
-            }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td class="${
+              isLast ? "rounded-bl-lg" : ""
+            }" style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
+            log?.user_name || "-"
+          }</td>
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.role || "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">
               <div class="w-max">
-                <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
+                <div style="border: 1px solid ${customBorder};" class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap
                   ${
                     renderColor(log?.action_type) === "green"
-                      ? "bg-green-500/20 text-green-900"
+                      ? "bg-green-500/20 border border-green-900 text-green-900"
                       : renderColor(log?.action_type) === "red"
-                      ? "bg-red-50 text-red-900"
-                      : "bg-yellow-50 text-yellow-900"
+                      ? "bg-red-50 border border-red-900 text-red-900"
+                      : "bg-yellow-100 border border-yellow-900 text-yellow-900"
                   }">
                   <span>${translateAction(log?.action_type)}</span>
                 </div>
               </div>
             </td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
               log?.action_taken || "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px;">${
-              log?.action_time || "-"
-            }</td>
+            <td class="${
+              isLast ? "rounded-br-lg" : ""
+            }" style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px;">${
+            log?.action_time || "-"
+          }</td>
           </tr>
-        `
-        )
+        `;
+        })
         .join("")}
     </tbody>
   </table>
@@ -1822,36 +1819,53 @@ async function exportToPDF() {
   installedPluginsHeader.style.marginBottom = "20px";
   installedPluginsHeader.style.paddingTop = "20px";
   installedPluginsHeader.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
+    <h3 style="font-size: 12px; border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 5px">WordPress repository installed plugins</h3>
   `;
 
   const pluginsTableContainer = document.createElement("div");
   pluginsTableContainer.innerHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
-        <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+        <thead style="color: ${textColor}">
             <tr>
-                <th style="border: 1px solid #ccc; padding: 8px;">Plugin Name</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">WP Required Version</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Tested Up To</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Requires PHP</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Rating</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Last Repo Update</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px; border-top-left-radius: 4px;">Plugin Name</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">WP Required Version</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Tested Up To</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Requires PHP</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Rating</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px; border-top-right-radius: 4px;">Last Repo Update</th>
             </tr>
         </thead>
     <tbody>
         ${pluginsData
-          .map(
-            (plugin) => `
+          .map((plugin, index) => {
+            const isLast = index === pluginsData.length - 1;
+            return `
           <tr>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${plugin.plugin_name}</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${plugin.WP_required_version}</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${plugin.tested_up_to_WP_version}</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${plugin.requires_php}</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${plugin.rating}%</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${plugin.last_repo_update}</td>
+            <td class="${
+              isLast ? "rounded-bl-lg" : ""
+            }"  style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
+              plugin.plugin_name
+            }</td>
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
+              plugin.WP_required_version
+            }</td>
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
+              plugin.tested_up_to_WP_version
+            }</td>
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
+              plugin.requires_php
+            }</td>
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
+              plugin.rating
+            }%</td>
+            <td class="${
+              isLast ? "rounded-br-lg" : ""
+            }" style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
+              plugin.last_repo_update
+            }</td>
           </tr>
-        `
-          )
+        `;
+          })
           .join("")}
       </tbody>
     </table>
@@ -1869,8 +1883,8 @@ async function exportToPDF() {
     wordfenceData?.issues?.new &&
     wordfenceData?.issues?.new?.length > 0
       ? `
-    <h3 style="border-bottom: 1px solid ${backgroundColor}; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
-    <p><b>*${
+    <h3 style="font-size: 12px; border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 5px">Virus Scan (Powered by Wordfence™)</h3>
+    <p style="font-size: 10px;"><b>*${
       wordfenceData?.lastMessage
         ? wordfenceData?.lastMessage
         : "No scan has been run lately"
@@ -1885,22 +1899,25 @@ async function exportToPDF() {
     wordfenceData?.issues?.new?.length > 0
       ? `
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: left">
-        <thead style="background-color: ${backgroundColor}; color: ${textColor}">
+        <thead style="color: ${textColor}">
             <tr>
-                <th style="border: 1px solid #ccc; padding: 8px;">Plugin Name</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Version</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Available Update</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">New Version</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Date</th>
-                <th style="border: 1px solid #ccc; padding: 8px;">Message</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px; border-top-left-radius: 4px;">Plugin Name</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Version</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Available Update</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">New Version</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px;">Date</th>
+                <th style="background-color: ${backgroundColor}; border: 1px solid #DFDFE5; padding: 8px; border-top-right-radius: 4px;">Message</th>
             </tr>
         </thead>
     <tbody>
         ${wordfenceData?.issues?.new
-          .map(
-            (plugin) => `
+          .map((plugin, index) => {
+            const isLast = index === wordfenceData?.issues?.new.length - 1;
+            return `
           <tr>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+            <td class="${
+              isLast ? "rounded-bl-lg" : ""
+            }" style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
               plugin?.type.includes("wfPluginUpgrade") ||
               plugin?.type.includes("wfPluginVulnerable")
                 ? plugin?.data?.Title
@@ -1908,7 +1925,7 @@ async function exportToPDF() {
                 ? plugin?.data?.Name
                 : "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
               plugin?.type.includes("wfPluginUpgrade") ||
               plugin?.type.includes("wfPluginVulnerable")
                 ? plugin?.data?.Version
@@ -1918,7 +1935,7 @@ async function exportToPDF() {
                 ? plugin?.data?.currentVersion
                 : "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
               plugin?.type.includes("wfPluginUpgrade") ||
               plugin?.type.includes("wfPluginVulnerable")
                 ? plugin?.data?.updateAvailable
@@ -1936,18 +1953,20 @@ async function exportToPDF() {
                   : "No"
                 : "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
               plugin?.data?.newVersion ? plugin?.data?.newVersion : "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+            <td style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
               plugin?.displayTime ? plugin?.displayTime : "-"
             }</td>
-            <td style="border: 1px solid #ccc; padding: 8px; font-size: 11px">${
+            <td class="${
+              isLast ? "rounded-br-lg" : ""
+            }" style="border: 1px solid #DFDFE5; padding: 8px; font-size: 11px">${
               plugin?.shortMsg ? plugin?.shortMsg : "-"
             }</td>
           </tr>
-        `
-          )
+        `;
+          })
           .join("")}
       </tbody>
     </table>
@@ -1961,7 +1980,7 @@ async function exportToPDF() {
   pageSpeedDataHeading.style.marginTop = "20px";
   pageSpeedDataHeading.style.paddingTop = "20px";
   pageSpeedDataHeading.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
+    <h3 style="font-size: 12px; border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 5px">Site Page Speed and metrics (Powered by PageSpeed Insights™)</h3>
   `;
 
   // Page Speed Data
@@ -2103,7 +2122,7 @@ async function exportToPDF() {
                         <div>
                           <h4 class="font-bold mb-1">Comulative Layout Shift</h4>
                           <p>This measures how much the page content moves around while it's loading. A low CLS means the page is stable as it loads.</p>
-                        </div>    
+                        </div>
                       </div>
                       <div class="grid grid-cols-2 gap-2">
                         <div>
@@ -2113,7 +2132,7 @@ async function exportToPDF() {
                         <div>
                           <h4 class="font-bold mb-1">Largest Contentful Paint</h4>
                           <p>This measures how long it takes for the biggest visible element (like a Hero section or text) to appear.</p>
-                        </div> 
+                        </div>
                       </div>
                     </div>
                 </div>
@@ -2239,7 +2258,7 @@ async function exportToPDF() {
   recommendations.style.marginTop = "20px";
   recommendations.style.paddingTop = "20px";
   recommendations.innerHTML = `
-    <h3 style="border-bottom: 1px solid ${settingsData.visual_identity.color_skin}; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
+    <h3 style="font-size: 12px; border-bottom: 1px solid #0F1010; margin-bottom: 10px; padding-bottom: 5px">Recommendations</h3>
     <p>${struckLogs.value.recommendations}</p>
   `;
 
@@ -2256,7 +2275,7 @@ async function exportToPDF() {
       color: #000000;
       text-align: center;
       padding: 10px 0;
-      border-top: 2px solid #cccccc;
+      border-top: 2px solid #DFDFE5;
       margin-top: 100px;
     ">
         <table style="width: 100%; border-collapse: collapse;">
@@ -2268,7 +2287,7 @@ async function exportToPDF() {
                 </td>
                 <td style:"text-align: right">
                     <div style="z-index: 1; text-align: right">
-                        <img style="width: auto; height: 14px" src="data:image/png;base64,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" />
+                        <img style="width: 160px; height: auto; object-fit: contain;" src="data:image/png;base64,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" />
                     </div>
                 </td>
             </tr>
