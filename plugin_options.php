@@ -419,11 +419,15 @@ class struck_plugin_options
 ?>
       <script>
         acf.addAction('ready', function($el) {
+
           // Check if we're on the specific options page
           if (acf.get('screen') !== 'options') return;
 
           // Optional: Check a specific options page ID (e.g., options-general, options-theme)
           if (acf.get('post_id') !== 'options') return; // or 'options_custom_name'
+
+          const pageSlug = new URLSearchParams(location.search).get('page');
+          if (pageSlug !== 'struck-settings') return;
 
           const field = acf.getField('field_b6662c545d19c5');
 

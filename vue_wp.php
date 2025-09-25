@@ -2,7 +2,7 @@
 /*
 Plugin Name: Struck Logger
 Description: Plugin Designed to track maintenance actions on a website and generate reports
-Version: 0.0.20
+Version: 0.0.22
 Author: Gustavo Gomez
 Author URI: https://github.com/GustavoGomez092
 */
